@@ -7,6 +7,8 @@ import {FormsModule} from '@angular/forms';
 import {UserService} from '../service/user.service';
 import {LoginPageState} from './LoginPageState';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {Router} from '@angular/router';
+import {HOME_PAGE} from '../app.routes';
 
 @Component({
   selector: 'app-login',
@@ -26,11 +28,14 @@ export class LoginPage {
 
   snackBar = inject(MatSnackBar)
 
+  router = inject(Router)
+
   onSubmit(){
     this.loginPageState.attemptLogin(this.model,
       () => {
       if (this.loginPageState.validLogin) {
         this.snackBar.open("You've been logged in!", "OK", {duration: 2000})
+        this.router.navigate([HOME_PAGE.path])
         }
       },
       () =>{
