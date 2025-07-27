@@ -6,6 +6,11 @@ const SIGNUP_PAGE = {
   COMPONENT : SignUpPage
 }
 
+const LOGIN_PAGE = {
+  path : "login",
+  COMPONENT : null
+}
+
 
 export const routes: Routes = [
     {path : SIGNUP_PAGE.PATH, component : SIGNUP_PAGE.COMPONENT}
