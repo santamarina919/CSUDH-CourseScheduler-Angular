@@ -1,5 +1,5 @@
 import {inject} from '@angular/core';
-import {UserService} from './user.service';
+import {UserService} from '../service/user.service';
 import {SignUpData} from './SignUpData';
 import {HttpStatusCode} from '@angular/common/http';
 

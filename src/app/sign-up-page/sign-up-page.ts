@@ -7,10 +7,11 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {SignUpData} from './SignUpData';
 import {HttpClient} from '@angular/common/http';
-import {UserService} from './user.service';
+import {UserService} from '../service/user.service';
 import {SignUpPageState} from './SignUpPageState';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Router} from '@angular/router';
+import {LOGIN_PAGE} from '../app.routes';
 
 @Component({
   selector: 'app-sign-up-page',
@@ -33,7 +34,10 @@ export class SignUpPage {
   onSubmit() {
     this.signUpPageState.signUpUser(
       this.model,
-      () => {this.snackBar.open("You've been registered!")}
+      () => {
+        this.snackBar.open("You've been registered!","OK",{ duration : 2000} )
+        this.router.navigate([LOGIN_PAGE.path])
+      }
     );
   }
 
