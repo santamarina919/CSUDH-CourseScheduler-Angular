@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import {SignUpPage} from './sign-up-page/sign-up-page';
 import {LoginPage} from './login-page/login-page';
 import {HomePage} from './home-page/home-page';
+import {PlansPage} from './plans-page/plans-page';
+import {SchedulerPage} from './scheduler-page/scheduler-page';
 
 const SIGNUP_PAGE = {
   PATH : "signup",
@@ -19,10 +21,21 @@ export const HOME_PAGE = {
   COMPONENT : HomePage
 }
 
+export const PLANS_PAGE = {
+  path : "plans",
+  component : PlansPage
+}
+
+export const SCHEDULER_PAGE = {
+  path : PLANS_PAGE.path + "/:id",
+  component : SchedulerPage
+}
 
 export const routes: Routes = [
     {path : SIGNUP_PAGE.PATH, component : SIGNUP_PAGE.COMPONENT},
     {path : LOGIN_PAGE.path, component : LOGIN_PAGE.COMPONENT},
-    {path : HOME_PAGE.path, component : HOME_PAGE.COMPONENT}
+    {path : HOME_PAGE.path, component : HOME_PAGE.COMPONENT},
+    {path : PLANS_PAGE.path, component : PLANS_PAGE.component},
+    {path : SCHEDULER_PAGE.path, component : SCHEDULER_PAGE.component}
 ];
 

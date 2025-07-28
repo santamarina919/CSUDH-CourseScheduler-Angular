@@ -1,0 +1,36 @@
+
+
+
+<form (ngSubmit)="onSubmit()" class = "createPlanForm">
+  <h1>Create Plan</h1>
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput [(ngModel)]="formModel.name" name="name">
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Term</mat-label>
+    <mat-select [(ngModel)]="formModel.majorId" name="degree">
+      <mat-option value="FALL">Fall</mat-option>
+      <mat-option value="SPRING">Spring</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Year</mat-label>
+    <input matInput [(ngModel)]="formModel.year" name="year">
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Degree</mat-label>
+    <mat-select [(ngModel)]="formModel.majorId" name="degree">
+      @for(major of formModelState.majors;track major.majorId){
+        <mat-option [value]="major.majorId">{{major.majorName}}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+
+  <button matButton="outlined">Create</button>
+
+</form>

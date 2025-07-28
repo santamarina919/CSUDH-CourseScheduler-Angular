@@ -1,0 +1,21 @@
+mat-card {
+  padding : 10px;
+  background-color: white;
+}
+
+
+mat-card:hover {
+  background-color: grey;
+  cursor: pointer;
+}
+
+.plansContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.planDescContainer {
+
+}

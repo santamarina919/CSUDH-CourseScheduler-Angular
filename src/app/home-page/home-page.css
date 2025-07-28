@@ -1,0 +1,13 @@
+mat-grid-list {
+  border: 1px solid black;
+  border-radius: 20px;
+}
+
+mat-grid-tile:last-child {
+  border-left: 1px solid black;
+}
+
+mat-grid-tile:hover {
+  background-color: dimgrey;
+  cursor: pointer;
+}

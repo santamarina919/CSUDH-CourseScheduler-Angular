@@ -1,0 +1,23 @@
+<div class="plansContainer">
+  <h1>Your Plans</h1>
+
+
+  <mat-list>
+
+    @for (plan of planPageState.plans; track plan.id) {
+      <mat-list-item role="listitem" lines=10 routerLink="{{plan.id}}">
+        <mat-card>
+          <mat-card-title>{{ plan.name }} (ID: {{ plan.id }})</mat-card-title>
+          <div class="planDescContainer">
+            <mat-card-title>{{ plan.majorId }}</mat-card-title>
+            <mat-card-title>{{ plan.term }} {{ plan.year }}</mat-card-title>
+          </div>
+        </mat-card>
+      </mat-list-item>
+    }
+
+  </mat-list>
+  <footer>
+    <button mat-raised-button  (click)="openDialog()">Create Plan</button>
+  </footer>
+</div>
