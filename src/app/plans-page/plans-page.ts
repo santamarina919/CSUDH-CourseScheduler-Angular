@@ -1,12 +1,17 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, Sanitizer} from '@angular/core';
 import {MatList, MatListItem} from '@angular/material/list';
-import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
-import {PlanService} from '../service/plan.service';
+import {MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle} from '@angular/material/card';
 import {PlansPageState} from './PlansPageState';
 import {MatButton} from '@angular/material/button';
-import {Router, RouterLink} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {CreatePlanForm} from '../create-plan-form/create-plan-form';
+import {MatIcon, MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
+import {NgOptimizedImage} from '@angular/common';
+import {DeletePlanDialog} from '../delete-plan-dialog/delete-plan-dialog';
+import {PLAN_ID_QUERY_NAME} from '../utils/QueryParamaters';
+import {PlanDetails} from './PlanDetails';
 
 @Component({
   selector: 'app-plans-page',
@@ -17,6 +22,8 @@ import {CreatePlanForm} from '../create-plan-form/create-plan-form';
     MatCardTitle,
     MatButton,
     RouterLink,
+
+    MatCardSubtitle,
   ],
   templateUrl: './plans-page.html',
   styleUrl: './plans-page.css'
@@ -27,19 +34,33 @@ export class PlansPage implements OnInit{
 
   dialogRef = inject(MatDialog);
 
-  router = inject(Router)
+  deleteDialogRef = inject(MatDialog);
+
 
   ngOnInit() {
     this.planPageState.fetchAllPlans()
   }
 
-  openDialog(){
+  openCreatePlanDialog(){
     const dialog = this.dialogRef.open(CreatePlanForm)
     const comp = dialog.componentInstance
-    comp.parentSubmitFunc = () => {
+    comp.parentSubmitFunc = (success :boolean, plan :PlanDetails | null) => {
+      if(!success) return
+      this.planPageState.addPlan(plan!!)
       dialog.close()
     }
   }
 
 
+  handleDeleteClick(planId :string) {
+    const deleteRef = this.deleteDialogRef.open(DeletePlanDialog)
+    deleteRef.componentInstance.affirmativeFunc = () => {
+      this.planPageState.deletePlan(planId)
+      this.deleteDialogRef.closeAll()
+    }
+
+    deleteRef.componentInstance.rejectionFunc = () => {
+      this.deleteDialogRef.closeAll()
+    }
+  }
 }

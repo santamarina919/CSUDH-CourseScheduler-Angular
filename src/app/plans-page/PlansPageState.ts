@@ -1,24 +1,39 @@
 import {PlanDetails} from './PlanDetails';
 import {PlanService} from '../service/plan.service';
-import {inject, Injectable} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 
 @Injectable(
   {providedIn : "root"}
 )
 export class PlansPageState {
 
-  private _plans :PlanDetails[] = []
+  private _plans = signal<PlanDetails[]>([])
 
   private planService = inject(PlanService)
 
   fetchAllPlans() {
-    this.planService.allPlans().subscribe( response =>
-      this._plans = response
+    this.planService.allPlans().subscribe( response => {
+        this._plans.set(response)
+      }
     )
   }
 
-  get plans(): PlanDetails[] {
-    return this._plans;
+  addPlan(plan :PlanDetails) {
+    this._plans.set([...this._plans(),plan])
   }
+
+  deletePlan(planId :string) {
+    this.planService.deletePlan(planId).subscribe({
+      next : () => {
+        this._plans.set(this._plans().filter(plan => plan.id !== planId))
+      }
+    })
+  }
+
+  get plans(): PlanDetails[] {
+    return this._plans()
+  }
+
+
 
 }

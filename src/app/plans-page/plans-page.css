@@ -3,12 +3,6 @@ mat-card {
   background-color: white;
 }
 
-
-mat-card:hover {
-  background-color: grey;
-  cursor: pointer;
-}
-
 .plansContainer {
   display: flex;
   flex-direction: column;
@@ -16,6 +10,24 @@ mat-card:hover {
   justify-content: center;
 }
 
-.planDescContainer {
+.cardContent {
+  display: flex;
+}
 
+.planLinkSection {
+  padding: 10px;
+}
+
+.cardContent:hover {
+  cursor: pointer;
+}
+
+.icons {
+  border-left: 1px solid black;
+  margin-left: 10px;
+  padding-left: 10px;
+}
+
+.icons > span:hover {
+  color: red;
 }

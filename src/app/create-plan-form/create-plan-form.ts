@@ -7,6 +7,7 @@ import {MatFormField, MatInput, MatLabel} from '@angular/material/input';
 import {MatButton} from '@angular/material/button';
 import {MatSelect} from '@angular/material/select';
 import {MatOption} from '@angular/material/core';
+import {PlanDetails} from '../plans-page/PlanDetails';
 
 @Component({
   selector: 'app-create-plan-form',
@@ -31,7 +32,9 @@ export class CreatePlanForm implements OnInit{
 
   snackbar = inject(MatSnackBar)
 
-  parentSubmitFunc: ()=> void = () => {}
+  terms = ["FALL","SPRING"]
+
+  parentSubmitFunc: (success :boolean,plan :PlanDetails | null)=> void = () => {}
 
   ngOnInit(): void {
     this.formState.fetchMajors()
@@ -39,13 +42,14 @@ export class CreatePlanForm implements OnInit{
 
   onSubmit() {
     this.formState.submitForm(this.formModel,
-      () => {
+      (plan :PlanDetails) => {
         this.snackbar.open("Plan created!","OK",{ duration : 2000} )
+        this.parentSubmitFunc(true,plan)
       },
       () => {
         this.snackbar.open("Plan creation failed","OK",{ duration : 2000} )
-      }
+        this.parentSubmitFunc(false,null)
+    }
     );
-    this.parentSubmitFunc()
   }
 }

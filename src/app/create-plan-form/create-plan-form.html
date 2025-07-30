@@ -10,9 +10,10 @@
 
   <mat-form-field>
     <mat-label>Term</mat-label>
-    <mat-select [(ngModel)]="formModel.majorId" name="degree">
-      <mat-option value="FALL">Fall</mat-option>
-      <mat-option value="SPRING">Spring</mat-option>
+    <mat-select [(ngModel)]="formModel.term" name="term">
+      @for (term of terms; track term) {
+        <mat-option [value]="term">{{term}}</mat-option>
+      }
     </mat-select>
   </mat-form-field>
 
