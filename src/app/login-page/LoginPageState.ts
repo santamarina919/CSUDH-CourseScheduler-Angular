@@ -3,9 +3,6 @@ import {UserService} from '../service/user.service';
 import {LoginFormModel} from './LoginFormModel';
 
 
-@Injectable(
-  {providedIn : "root"}
-)
 export class LoginPageState {
   private _validLogin = false;
 

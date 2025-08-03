@@ -2,9 +2,7 @@ import {PlanDetails} from './PlanDetails';
 import {PlanService} from '../service/plan.service';
 import {inject, Injectable, signal} from '@angular/core';
 
-@Injectable(
-  {providedIn : "root"}
-)
+
 export class PlansPageState {
 
   private _plans = signal<PlanDetails[]>([])

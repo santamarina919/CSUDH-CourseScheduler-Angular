@@ -6,9 +6,7 @@ import {PlanService} from '../service/plan.service';
 import {DegreeInfo} from './DegreeInfo';
 import {PlanDetails} from '../plans-page/PlanDetails';
 
-@Injectable(
-  {providedIn : "root"}
-)
+
 export class CreatePlanFormState  {
 
 
