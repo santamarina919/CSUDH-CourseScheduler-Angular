@@ -26,8 +26,13 @@ export const PLANS_PAGE = {
   component : PlansPage
 }
 
+export const RouteParameters = {
+  planId : "planId",
+  degreeId : "degreeId"
+}
+
 export const SCHEDULER_PAGE = {
-  path : PLANS_PAGE.path + "/:id",
+  path : PLANS_PAGE.path + `/:${RouteParameters.planId}/:${RouteParameters.degreeId}`,
   component : SchedulerPage
 }
 

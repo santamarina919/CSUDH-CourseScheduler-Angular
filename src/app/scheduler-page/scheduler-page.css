@@ -1,0 +1,40 @@
+
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.planningContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr ;
+
+}
+
+.planningSectionContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid black;
+  place-content: center;
+  align-items: center;
+
+}
+
+.summaryContainer {
+  display: flex;
+  flex-direction: column;
+  place-content: center;
+  align-items: center;
+  border: 1px solid black;
+}
+
+.semesterList {
+  border-color: black;
+  border-style: solid;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
+}

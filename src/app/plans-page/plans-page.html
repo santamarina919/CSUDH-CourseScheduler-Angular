@@ -8,7 +8,7 @@
       <mat-list-item role="listitem" lines=10>
           <mat-card>
             <div class="cardContent">
-              <div class="planLinkSection" routerLink="{{plan.id}}">
+              <div class="planLinkSection" [routerLink]="[plan.id,plan.majorId]">
                 <mat-card-title>{{ plan.name }} - {{ plan.majorId }} - {{ plan.term }} {{ plan.year }}</mat-card-title>
                 <mat-card-subtitle> ID: {{ plan.id }}</mat-card-subtitle>
               </div>

@@ -1,11 +1,47 @@
 
 
+<div class="planningContainer">
+  <div class="planningSectionContainer">
+    <h3>Available</h3>
+    <mat-selection-list>
+      @for (course of state.availableCourses; track course.id) {
+        <mat-list-option>
+          {{course.id}} - {{ course.name }}
+        </mat-list-option>
+      }
+    </mat-selection-list>
+  </div>
+  <div class="planningSectionContainer">
+    <h3>Scheduled</h3>
+    <div class="semesterList">
+      @for (semester of state.semesters; track semester.semester) {
+        <div class="semester">
+          <h4>{{semester.term}} - {{semester.year}} Semester# {{semester.semester}}</h4>
+          <div class="course">
+            @for (course of semester.courses; track course) {
+              @let courseDetails = state.fetchCourse(course);
+              <p>{{courseDetails?.id}} {{courseDetails?.name}}</p>
+            } @empty {
+              <p>No courses scheduled</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+  <div class="planningSectionContainer">
+    <h3>Effects</h3>
+    @for (effect of state.effects; track effect.id)
+    {
 
-<mat-grid-list cols="3" rowHeight="1:1">
-  <mat-grid-tile>
-  </mat-grid-tile>
-  <mat-grid-tile>
-  </mat-grid-tile>
-  <mat-grid-tile>
-  </mat-grid-tile>
-</mat-grid-list>
+    }
+    @empty {
+      <p>No effects for this session yet</p>
+    }
+  </div>
+</div>
+
+<div class="summaryContainer">
+  <h3>Summary</h3>
+  <app-summary-node [backingRequirements]="state.rootsAsRequirements" [courseMap]="state.courseMap" [requirementMap]="state.requirementMap" ></app-summary-node>
+</div>

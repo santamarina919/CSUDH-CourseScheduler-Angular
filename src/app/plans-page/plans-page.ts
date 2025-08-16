@@ -30,7 +30,7 @@ import {PlanDetails} from './PlanDetails';
 })
 export class PlansPage implements OnInit{
 
-  planPageState = inject(PlansPageState);
+  planPageState = new PlansPageState();
 
   dialogRef = inject(MatDialog);
 

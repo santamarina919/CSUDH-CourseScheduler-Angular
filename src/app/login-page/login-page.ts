@@ -8,7 +8,7 @@ import {UserService} from '../service/user.service';
 import {LoginPageState} from './LoginPageState';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Router} from '@angular/router';
-import {HOME_PAGE} from '../app.routes';
+import {HOME_PAGE, PLANS_PAGE} from '../app.routes';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +24,7 @@ import {HOME_PAGE} from '../app.routes';
 export class LoginPage {
   model  = new LoginFormModel("","")
 
-  loginPageState = inject(LoginPageState)
+  loginPageState = new LoginPageState()
 
   snackBar = inject(MatSnackBar)
 
