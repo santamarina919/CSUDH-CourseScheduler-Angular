@@ -5,7 +5,7 @@ export class Prerequisite {
     public prereqId: string,
     public parentCourse: string,
     public parentPrereq: string | null,
-    public prerequisiteType: PrerequisiteType,
+    public type: PrerequisiteType,
     public childrenPrereqs: string[],
     public leafCourses: string[]
   ) {

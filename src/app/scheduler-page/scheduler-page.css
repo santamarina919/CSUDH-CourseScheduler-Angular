@@ -10,18 +10,35 @@
 .planningContainer {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr ;
-
+  border: 1px solid;
+  margin-top: 5px;
+  margin-bottom: 10px;
 }
+
+.planningContainer > div {
+  align-self: start;
+}
+
+
 
 .planningSectionContainer {
   display: flex;
   flex-direction: column;
   width: 100%;
-  border: 1px solid black;
+
   place-content: center;
   align-items: center;
 
+
+
 }
+
+.planningContainer > div:nth-child(2) {
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+}
+
+
 
 .summaryContainer {
   display: flex;
@@ -32,9 +49,84 @@
 }
 
 .semesterList {
-  border-color: black;
-  border-style: solid;
   width: 100%;
   box-sizing: border-box;
   padding: 5px;
+  overflow: auto;
 }
+
+.hideElement {
+  display: none;
+}
+
+.availableCourse {
+  margin-top: 20px;
+}
+
+.effectsContainer {
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.effectsContainer > * {
+  margin-top: 10px;
+}
+
+.semester {
+  margin-top: 2px;
+  padding: 1px;
+}
+
+mat-expansion-panel {
+  width: 100%;
+}
+
+.effectItemContainer {
+  display: flex;
+  flex-direction: column;
+}
+.titleContainer{
+  display: flex;
+  flex-direction: row;
+}
+
+.titleContainer > p:nth-child(even) {
+  margin-right: 3px;
+  margin-left: 3px;
+}
+
+.removalStyle {
+  color: red;
+}
+
+.additionStyle {
+  color: green;
+}
+
+.tree-invisible {
+  display: none;
+}
+
+.tree ul,
+.tree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+
+/*
+ * This padding sets alignment of the nested nodes.
+ */
+.tree .mat-nested-tree-node div[role=group] {
+  padding-left: 40px;
+}
+
+/*
+ * Padding for leaf nodes.
+ * Leaf nodes need to have padding so as to align with other non-leaf nodes
+ * under the same parent.
+ */
+.tree div[role=group] > .mat-nested-tree-node {
+  padding-left: 40px;
+}
+

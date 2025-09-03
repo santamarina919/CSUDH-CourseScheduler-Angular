@@ -1,47 +1,81 @@
-
-
-<div class="planningContainer">
-  <div class="planningSectionContainer">
-    <h3>Available</h3>
-    <mat-selection-list>
-      @for (course of state.availableCourses; track course.id) {
-        <mat-list-option>
-          {{course.id}} - {{ course.name }}
-        </mat-list-option>
-      }
-    </mat-selection-list>
+@if (isLoading()) {
+  <div class="loadingContainer">
+    <p>Fetching plan details...</p>
   </div>
-  <div class="planningSectionContainer">
-    <h3>Scheduled</h3>
-    <div class="semesterList">
-      @for (semester of state.semesters; track semester.semester) {
-        <div class="semester">
-          <h4>{{semester.term}} - {{semester.year}} Semester# {{semester.semester}}</h4>
-          <div class="course">
-            @for (course of semester.courses; track course) {
-              @let courseDetails = state.fetchCourse(course);
-              <p>{{courseDetails?.id}} {{courseDetails?.name}}</p>
-            } @empty {
-              <p>No courses scheduled</p>
-            }
-          </div>
+}
+@else{
+  <div class="schedulerContainer">
+    <div class="planningContainer" cdkDropListGroup>
+      <div class="planningSectionContainer">
+        <h3>Available for {{ semesterTerm() }} {{ semesterYear() }}</h3>
+        <div cdkDropList (cdkDropListDropped)="handleDropEvent($event)">
+          @for (course of state!.availableCourses(semesterNumber()); track course.id) {
+            <div cdkDrag cdkDragPreviewContainer="parent" (cdkDragStarted)="handleDragStartEvent(course)" [cdkDragData]="course" class="availableCourse">
+              {{ course.id }} - {{ course.name }}
+            </div>
+          }
         </div>
-      }
+      </div>
+      <div class="planningSectionContainer">
+        <h3>Scheduled</h3>
+        <div class="semesterList">
+          @for (semester of state!.semesters(); track semester.semester) {
+
+            <div [ngClass]="semester.semester <= this.invalidSemesterDrops() ? 'hideElement' : ''" class="semester" cdkDropList cdkScrollable (cdkDropListDropped)="handleDropEvent($event)" [cdkDropListEnterPredicate]="canDropPredicate"
+                 (cdkDropListEntered)="handleDragEnter(semester.semester)" [cdkDropListData]="semester.semester" >
+                <h4 (click)="handleSemesterHeaderClick(semester.semester)">{{ semester.term }} - {{ semester.year }}
+                  Semester# {{ semester.semester }}</h4>
+                <div class="course">
+                  @for (course of semester.courses; track course) {
+                    @let courseDetails = state!.fetchCourse(course)!;
+                    <p (click)="handlePlannedCourseClick(courseDetails.id)" cdkDrag cdkDragDisabled [cdkDragData]="courseDetails">{{ courseDetails!.id }} {{ courseDetails!.name }}</p>
+                  } @empty {
+                    <p [ngClass]="semester.semester <= this.invalidSemesterDrops() ? '' : 'hideElement'">No courses scheduled</p>
+                    <p [ngClass]="semester.semester <= this.invalidSemesterDrops() ? 'hideElement' : ''">No courses scheduled</p>
+                  }
+                </div>
+            </div>
+            <div [ngClass]="semester.semester <= this.invalidSemesterDrops() ? '' : 'hideElement'" class="semester">
+              <h4>{{ semester.term }} - {{ semester.year }} Semester# {{ semester.semester }}</h4>
+              <p><strong>You cannot add this course to this semester</strong></p>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="planningSectionContainer effectsContainer">
+        <h3>Effects</h3>
+        @for (effect of state!.effects; track effect.id) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+
+                  <mat-panel-title>
+                    <div class="titleContainer">
+                      <p>{{ effect.focus() }}</p>
+                      <p>was</p>
+                      <p [className]="effect.actionType() == 'ADDITION' ? 'additionStyle' : 'removalStyle'">{{ effect.actionTaken() }}</p>
+                    </div>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="effectItemContainer">
+                  @for (desc of effect.effectItems(); track $index) {
+                    <p>{{ desc.focus() }} {{ desc.currentState() }}</p>
+                  } @empty {
+                    <p>Adding this course did not free any courses</p>
+                  }
+                </div>
+              </mat-expansion-panel>
+        }
+      </div>
     </div>
-  </div>
-  <div class="planningSectionContainer">
-    <h3>Effects</h3>
-    @for (effect of state.effects; track effect.id)
-    {
 
-    }
-    @empty {
-      <p>No effects for this session yet</p>
-    }
+    <div class="summaryContainer">
+      <h3>Your Degree and Your Progress</h3>
+    </div>
+    <mat-accordion>
+      @for (req of state!.courseDegreeGraph.serilizedGraph().requirements; track req.id) {
+        <app-serialized-requirement-panel [requirement]="req"></app-serialized-requirement-panel>
+      }
+    </mat-accordion>
   </div>
-</div>
 
-<div class="summaryContainer">
-  <h3>Summary</h3>
-  <app-summary-node [backingRequirements]="state.rootsAsRequirements" [courseMap]="state.courseMap" [requirementMap]="state.requirementMap" ></app-summary-node>
-</div>
+}

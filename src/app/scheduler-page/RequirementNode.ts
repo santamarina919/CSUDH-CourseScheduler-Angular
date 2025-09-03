@@ -3,7 +3,8 @@ export class RequirementNode {
     public requirementId: string,
     public outgoingRequirements: string[],
     public outgoingCourses: string[],
-    public incomingRequirements: string[]
+    public incomingRequirements: string[],
+    public type: string,
   ) {
   }
 }

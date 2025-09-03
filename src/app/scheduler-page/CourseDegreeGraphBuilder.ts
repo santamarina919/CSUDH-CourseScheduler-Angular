@@ -45,7 +45,6 @@ export class CourseDegreeGraphBuilder {
     const prereqMap = this.associatePrerequisiteById();
     const reqMap = this.associateRequirementById();
 
-    this.setNoPrereqCoursesAvailable(courseMap,Array.from(courseNodesMap.values()))
 
     return new CourseDegreeGraph(courseMap,prereqMap,reqMap,courseNodesMap,prereqNodesMap,reqNodesMap,this.rootsOfDegree!)
   }
@@ -81,6 +80,7 @@ export class CourseDegreeGraphBuilder {
       })
 
       prereqNode.outgoingCourses.forEach(course => {
+
         courseNodesMap.get(course)!.incomingPreqreqs.push(prereqNode.prerequisiteId)
       })
     })
@@ -88,7 +88,8 @@ export class CourseDegreeGraphBuilder {
 
   private createPrerequisiteNodes() {
     const prereqNodes = this.prerequisites!.map(prerequisite => {
-      return new PrerequisiteNode(prerequisite.prereqId, prerequisite.childrenPrereqs, prerequisite.leafCourses,[],prerequisite.prerequisiteType)
+
+      return new PrerequisiteNode(prerequisite.prereqId, prerequisite.childrenPrereqs, prerequisite.leafCourses,[],prerequisite.type,prerequisite.parentPrereq == null ? prerequisite.parentCourse : null)
     })
 
     const prereqNodesMap = new Map<string, PrerequisiteNode>()
@@ -126,7 +127,7 @@ export class CourseDegreeGraphBuilder {
 
   private createRequirementNodes(){
     const reqNodes = this.requirements!.map(requirement => {
-      return new RequirementNode(requirement.requirementId, requirement.childRequirements, requirement.leafCourses,[])
+      return new RequirementNode(requirement.requirementId, requirement.childRequirements, requirement.leafCourses,[],requirement.type)
     })
 
     const reqNodesMap = new Map<string, RequirementNode>()
@@ -170,18 +171,5 @@ export class CourseDegreeGraphBuilder {
 
   }
 
-  /**
-   * Courses with no prerequisites should have semester available set to zero. Which means that
-   * it is available to all students to take
-   * @param courseMap
-   * @param courseNodes
-   * @private
-   */
-  private setNoPrereqCoursesAvailable(courseMap: Map<string, Course>, courseNodes :CourseNode[]) {
-    courseNodes.forEach(courseNode => {
-      if(courseNode.rootPrereq == null) {
-        courseMap.get(courseNode.courseId)!.semesterAvailable = 0
-      }
-    })
-  }
+
 }

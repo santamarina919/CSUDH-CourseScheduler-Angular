@@ -1,14 +1,12 @@
-import {CourseDegreeGraphBuilder} from './CourseDegreeGraphBuilder';
-import {PlanService} from '../service/plan.service';
-import {DegreeService} from '../service/degree.service';
-import {forkJoin} from 'rxjs';
 import {CourseDegreeGraph} from './CourseDegreeGraph';
-import {FullPlanDetails, notTerm, Term} from './FullPlanDetails';
-import {Requirement} from './Requirement';
-import {Prerequisite} from './Prerequisite';
+import {FullPlanDetails} from './FullPlanDetails';
 import {Course} from './Course';
-import {PlannedCourse} from './PlannedCourse';
 import {Semester} from './Semester';
+import {calcTerm} from '../utils/CalcTermFromSemester';
+import {calcYear} from '../utils/CalcYearFromSemester';
+import {ScheduleEffect} from './effects/ScheduleEffect';
+import {PrerequisiteNode} from './PrerequisiteNode';
+import {CourseRemoveBuilder, RemovedCourse} from './effects/CourseRemove';
 
 export class Effect {
   constructor(public id :string) {
@@ -17,183 +15,101 @@ export class Effect {
 }
 
 export class SchedulerPageState {
-  private planDetails :FullPlanDetails = new FullPlanDetails("Your Plan ID","Loading Plan Details","Fall", 2019,"CSC")
-
-  private courseDegreeGraph :CourseDegreeGraph | null = null
-
-  private _effects :Effect[] = []
+  private planDetails :FullPlanDetails
+  public courseDegreeGraph :CourseDegreeGraph
+  public effects :ScheduleEffect[] = []
 
   constructor(
-    private planId :string,
-    private degreeId :string,
-    private planService:PlanService,
-    private degreeService :DegreeService,
+    courseDegreeGraph :CourseDegreeGraph,
+    planDetails :FullPlanDetails
   ) {
-    this.planService.planDetails(this.planId).subscribe(response => {
-      response.term = (response.term as unknown as string )== "FALL" ? "Fall" : "Spring"
-      this.planDetails = response
-    })
-
-    const coursesObservable$ = this.degreeService.fetchCourses(this.degreeId)
-
-    const requirementObservable$ = this.degreeService.fetchRequirements(this.degreeId)
-
-    const prerequisiteObservable$ = this.degreeService.fetchPrerequisites(this.degreeId)
-
-    const plannedObservable$ = this.planService.plannedCourses(this.planId)
-
-    const roots$ = this.degreeService.fetchRootsOfDegree(this.degreeId)
-
-    const jobs  = [coursesObservable$, requirementObservable$, prerequisiteObservable$, plannedObservable$,roots$]
-
-    const JOB_INDEXES = {
-      COURSES : 0,
-      REQUIREMENTS :1,
-      PREREQUISITES : 2,
-      PLANNED : 3,
-      ROOTS : 4
-    }
-
-    forkJoin(jobs).subscribe(finishedJobs => {
-      const courses = finishedJobs[JOB_INDEXES.COURSES] as Course[]
-      const requirements = finishedJobs[JOB_INDEXES.REQUIREMENTS] as Requirement[]
-      const prerequisites = finishedJobs[JOB_INDEXES.PREREQUISITES] as Prerequisite[]
-      const planned = finishedJobs[JOB_INDEXES.PLANNED] as PlannedCourse[]
-      const roots = finishedJobs[JOB_INDEXES.ROOTS] as string[]
-
-      this.courseDegreeGraph = new CourseDegreeGraphBuilder(courses,requirements,prerequisites,planned,roots).outputGraph
-    })
-
-
-  }
-
-  get availableCourses() {
-    return this.courseDegreeGraph?.availableCourses ?? null
+    this.courseDegreeGraph = courseDegreeGraph
+    this.planDetails = planDetails
   }
 
   fetchCourse(courseId :string){
-    return this.courseDegreeGraph?.fetchCourse(courseId)
+    return this.courseDegreeGraph.fetchCourse(courseId)
   }
 
   //********FUNCTIONS RELATED TO PLANNED SEMESTERS********
-  _maxSemester:number | null = null
 
-  DEFAULT_MAX = 2 * 4
+  private largestEmptySemester :number = 0
 
-  get maxSemester() {
-    if(this._maxSemester != null){
-      return this._maxSemester
-    }
+  private DEFAULT_MAX = 2 * 4
 
-    const courseList = this.courseDegreeGraph?.courses ?? []
-    if(courseList.length == 0){
-      return this.DEFAULT_MAX
-    }
-
-    const maxSemester = courseList.reduce((acc, course) => {
-        return Math.max(acc, course.semesterAvailable ?? 0)
-      }, 0)
-
-    this._maxSemester =  maxSemester < this.DEFAULT_MAX ? this.DEFAULT_MAX : maxSemester
-    return this._maxSemester
-  }
-
-  set maxSemester(semester :number){
+  setLargestEmptySemester(semester :number){
     if(semester < 1){
       throw new Error('Semester must be greater than 0')
     }
-    this._maxSemester = semester
+    this.largestEmptySemester = semester
   }
+  semesters() :Semester[] {
 
-  get semesters() :Semester[] | null {
-    if(this.courseDegreeGraph == null){
-      return null
-    }
+    const semesterMap = this.courseDegreeGraph.groupCoursesBySemeter()
 
-    let largestSemester = this.maxSemester
+    const largestPlannedSemester = Math.max(...Array.from(semesterMap.keys()),this.DEFAULT_MAX)
 
-    const semesterMap = new Map<number,Semester>()
-    this.courseDegreeGraph.courses.forEach(course => {
-      if(course.semesterPlanned != null){
-        if(!semesterMap.has(course.semesterPlanned!)){
-          const term = this.calcTerm(course.semesterPlanned!)
-          const year = this.calcYear(course.semesterPlanned!)
-          semesterMap.set(course.semesterPlanned!,new Semester(course.semesterPlanned,[],term,year))
-          largestSemester = Math.max(largestSemester, course.semesterPlanned!)
-        }
-
-
-        semesterMap.get(course.semesterPlanned)!.courses.push(course.id)
-      }
-    })
-
+    const largestSemester = Math.max(this.largestEmptySemester,largestPlannedSemester)
 
     const semesters :Semester[] = []
 
-    for(let i = 1; i <= largestSemester; i++){
-      if(semesterMap.has(i)){
-        semesters.push(semesterMap.get(i)!)
+    for(let semesterNum = 1; semesterNum <= largestSemester; semesterNum++){
+      if(semesterMap.has(semesterNum)){
+        const semesterCourses = semesterMap.get(semesterNum)!
+        semesters.push(new Semester(semesterNum,semesterCourses,calcTerm(this.planDetails.term,semesterNum),calcYear(this.planDetails.year,semesterNum)))
       }
       else {
-        semesters.push(new Semester(i,[],this.calcTerm(i),this.calcYear(i)))
+        semesters.push(new Semester(semesterNum,[],calcTerm(this.planDetails.term,semesterNum),calcYear(this.planDetails.year,semesterNum)))
       }
     }
-
     return semesters
   }
 
-
-  public calcYear(semesterNumber: number) {
-    return this.planDetails.year + Math.floor(semesterNumber / 2)
+  rootsAsRequirements() {
+    return this.courseDegreeGraph.roots().map(root => this.courseDegreeGraph.fetchRequirementBy(root)!)
   }
 
-  public calcTerm(semesterNumber: number):Term {
-    const isStartTerm = semesterNumber % 2 == 1
-    if(isStartTerm){
-      return this.planDetails.term
-    }
-    else {
-      return notTerm(this.planDetails.term)
-    }
-  }
-  //*************************************************************
-
-  get effects(): Effect[] {
-    return this._effects;
+  availableCourses(semester :number) {
+    return this.courseDegreeGraph.availableCourses(semester)
   }
 
-
-  //*************Functions related to summary of an entire plan
-  get roots() {
-    if(this.courseDegreeGraph == null){
-      return []
-    }
-    return this.courseDegreeGraph.roots
+  addCourseToSchedule(course :Course,semester :number) {
+    console.info(`Adding ${course.name} to semester ${semester}`)
+    const effect = this.courseDegreeGraph.addCourseToSchedule(course,semester)
+    this.effects.push(effect.build())
   }
 
-  get rootsAsRequirements() {
-    if(this.courseDegreeGraph == null){
-      return []
+  removeCourseFromSchedule(courseId :string, removalEffect :CourseRemoveBuilder) {
+    removalEffect.for(courseId)
+
+
+    const onPrereqNode = (prereq :PrerequisiteNode) => {
+
+      prereq.incomingPrereqs.forEach(prereqId => {
+        const isCompleted = this.courseDegreeGraph.isPrereqCompelted(prereqId)
+        if(isCompleted){
+          removalEffect.uncompletesPrereq(prereqId)
+        }
+      })
     }
 
-    return this.roots.map(root => this.courseDegreeGraph?.fetchRequirementBy(root)!)
+
+    const toBeRemoved = this.courseDegreeGraph.findAllDependentCourses(courseId,onPrereqNode)
+    toBeRemoved.push(courseId)
+    const courseToBeRemoved = toBeRemoved
+      .map(courseId => this.fetchCourse(courseId)!)
+      .filter(course => course.semesterPlanned != null)
+
+    const removedCoursesEffect = courseToBeRemoved.map(course => [course.id,course.semesterPlanned!] as RemovedCourse)
+    removalEffect.removes(removedCoursesEffect)
+
+
+    return courseToBeRemoved
   }
 
-  get requirementMap() {
-    if(this.courseDegreeGraph == null){
-      return new Map<string,Requirement>()
-    }
-    return this.courseDegreeGraph.requirementMap
+  unplanCourse(courseId: string) {
+    //TODO persist change
+    this.fetchCourse(courseId)!.semesterPlanned = null
   }
-
-  get courseMap() {
-    if(this.courseDegreeGraph == null){
-      return new Map<string,Course>()
-    }
-    return this.courseDegreeGraph.courseMap
-  }
-
-
-  //***********************************************************
 
 }

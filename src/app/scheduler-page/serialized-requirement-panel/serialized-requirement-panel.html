@@ -1,0 +1,19 @@
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>{{ requirement().name }} id - {{ requirement().id.substring(0, 5) }}</mat-panel-title>
+    <mat-panel-description>{{ requirement().description() }}</mat-panel-description>
+  </mat-expansion-panel-header>
+  <p>Course(s)</p>
+  @for (course of requirement().leafCourses; track course.id) {
+    <app-course-panel [course]="course"></app-course-panel>
+  }
+
+  <p>Descendent Requirement(s)</p>
+  @for (childReq of requirement().childRequirements; track childReq.id) {
+    <app-serialized-requirement-panel [requirement]="childReq"></app-serialized-requirement-panel>
+  }
+  @empty {
+    <p>No descendent requirements</p>
+  }
+
+</mat-expansion-panel>

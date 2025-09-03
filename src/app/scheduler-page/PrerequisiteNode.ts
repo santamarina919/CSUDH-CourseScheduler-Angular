@@ -7,6 +7,7 @@ export class PrerequisiteNode {
     public outgoingCourses: string[],
     public incomingPrereqs: string[],
     public type: PrerequisiteType,
+    public parentCourse :string | null,
   ) {
   }
 }

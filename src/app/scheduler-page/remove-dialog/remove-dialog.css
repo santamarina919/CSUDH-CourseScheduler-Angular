@@ -1,0 +1,14 @@
+.container {
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+
+.buttonContainer {
+  display: flex;
+  place-content: center;
+}
+
+.buttonContainer button:first-child {
+  margin-right: 10px;
+}

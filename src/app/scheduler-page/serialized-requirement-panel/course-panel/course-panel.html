@@ -1,0 +1,12 @@
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>{{ course().id }}</mat-panel-title>
+    <mat-panel-description> {{ course().name }} - {{ course().units }} units</mat-panel-description>
+  </mat-expansion-panel-header>
+  @if(course().rootPrereq == null) {
+    <p>This course has no prerequisites</p>
+  }
+  @else{
+    <app-prereq-panel [prereq]="course().rootPrereq!"></app-prereq-panel>
+  }
+</mat-expansion-panel>
