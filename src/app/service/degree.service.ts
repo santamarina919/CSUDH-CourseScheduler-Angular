@@ -1,8 +1,8 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Requirement} from '../scheduler-page/Requirement';
-import {Prerequisite} from '../scheduler-page/Prerequisite';
-import {Course} from '../scheduler-page/Course';
+import {Requirement} from '../scheduler-page/data-models/Requirement';
+import {Prerequisite} from '../scheduler-page/data-models/Prerequisite';
+import {Course} from '../scheduler-page/data-models/Course';
 
 
 @Injectable({

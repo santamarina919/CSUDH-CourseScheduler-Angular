@@ -1,6 +1,6 @@
 import {Component, input} from '@angular/core';
-import {Requirement} from '../Requirement';
-import {Course} from '../Course';
+import {Requirement} from '../data-models/Requirement';
+import {Course} from '../data-models/Course';
 import {
   MatNestedTreeNode,
   MatTree,
@@ -8,7 +8,7 @@ import {
   MatTreeNodeDef, MatTreeNodeOutlet, MatTreeNodePadding,
   MatTreeNodeToggle
 } from '@angular/material/tree';
-import {RequirementNode} from '../CourseDegreeGraph/RequirementNode';
+import {RequirementNode} from '../coursedegreegraph/RequirementNode';
 import {NestedTreeControl} from '@angular/cdk/tree';
 import {MatIcon} from '@angular/material/icon';
 import {MatIconButton} from '@angular/material/button';

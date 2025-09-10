@@ -1,4 +1,4 @@
-import {notTerm, Term} from '../scheduler-page/FullPlanDetails';
+import {notTerm, Term} from '../scheduler-page/data-models/FullPlanDetails';
 
 
 export function calcTerm(startTerm :Term,semesterNumber: number):Term {

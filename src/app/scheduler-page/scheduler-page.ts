@@ -6,8 +6,8 @@ import {RouteParameters} from '../app.routes';
 import {forkJoin, Observable} from 'rxjs';
 import {DegreeService} from '../service/degree.service';
 import {PlanService} from '../service/plan.service';
-import {CourseDegreeGraphBuilder} from './CourseDegreeGraph/CourseDegreeGraphBuilder';
-import {CourseDegreeGraph} from './CourseDegreeGraph/CourseDegreeGraph';
+import {CourseDegreeGraphBuilder} from './coursedegreegraph/CourseDegreeGraphBuilder';
+import {CourseDegreeGraph} from './coursedegreegraph/CourseDegreeGraph';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {
   MatList,
@@ -18,11 +18,11 @@ import {
   MatSelectionList
 } from '@angular/material/list';
 import {SummaryNode} from './summary-node/summary-node';
-import {Course} from './Course';
-import {Requirement} from './Requirement';
-import {Prerequisite} from './Prerequisite';
-import {PlannedCourse} from './PlannedCourse';
-import {FullPlanDetails} from './FullPlanDetails';
+import {Course} from './data-models/Course';
+import {Requirement} from './data-models/Requirement';
+import {Prerequisite} from './data-models/Prerequisite';
+import {PlannedCourse} from './data-models/PlannedCourse';
+import {FullPlanDetails} from './data-models/FullPlanDetails';
 import {calcTerm} from '../utils/CalcTermFromSemester';
 import {calcYear} from '../utils/CalcYearFromSemester';
 import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup} from '@angular/cdk/drag-drop';

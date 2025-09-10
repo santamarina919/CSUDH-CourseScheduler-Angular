@@ -1,11 +1,11 @@
-import {CourseDegreeGraph} from './CourseDegreeGraph/CourseDegreeGraph';
-import {FullPlanDetails} from './FullPlanDetails';
-import {Course} from './Course';
-import {Semester} from './Semester';
+import {CourseDegreeGraph} from './coursedegreegraph/CourseDegreeGraph';
+import {FullPlanDetails} from './data-models/FullPlanDetails';
+import {Course} from './data-models/Course';
+import {Semester} from './data-models/Semester';
 import {calcTerm} from '../utils/CalcTermFromSemester';
 import {calcYear} from '../utils/CalcYearFromSemester';
 import {ScheduleEffect} from './effects/ScheduleEffect';
-import {PrerequisiteNode} from './CourseDegreeGraph/PrerequisiteNode';
+import {PrerequisiteNode} from './coursedegreegraph/PrerequisiteNode';
 import {CourseRemoveBuilder, RemovedCourse} from './effects/CourseRemove';
 import {inject} from '@angular/core';
 import {DegreeService} from '../service/degree.service';

@@ -1,6 +1,6 @@
-import {Requirement, RequirementType} from './Requirement';
-import {Course} from './Course';
-import {Prerequisite, PrerequisiteType} from './Prerequisite';
+import {Requirement, RequirementType} from './data-models/Requirement';
+import {Course} from './data-models/Course';
+import {Prerequisite, PrerequisiteType} from './data-models/Prerequisite';
 
 
 export class SerializedRequirement {

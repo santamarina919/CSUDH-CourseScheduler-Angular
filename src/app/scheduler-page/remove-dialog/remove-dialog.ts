@@ -8,7 +8,7 @@ import {
   MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef,
   MatTable
 } from '@angular/material/table';
-import {Course} from '../Course';
+import {Course} from '../data-models/Course';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatButton} from '@angular/material/button';
 

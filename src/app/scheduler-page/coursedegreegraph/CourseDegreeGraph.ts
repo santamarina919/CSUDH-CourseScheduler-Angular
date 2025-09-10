@@ -1,6 +1,6 @@
-import {Requirement} from '../Requirement';
-import {Prerequisite, PrerequisiteType} from '../Prerequisite';
-import {Course} from '../Course';
+import {Requirement} from '../data-models/Requirement';
+import {Prerequisite, PrerequisiteType} from '../data-models/Prerequisite';
+import {Course} from '../data-models/Course';
 import {CourseNode} from './CourseNode';
 import {PrerequisiteNode} from './PrerequisiteNode';
 import {RequirementNode} from './RequirementNode';

@@ -4,8 +4,8 @@ import {PlanDetails} from '../plans-page/PlanDetails';
 import {CreatePlanFormModel} from '../create-plan-form/CreatePlanFormModel';
 import {DegreeInfo} from '../create-plan-form/DegreeInfo';
 import {PLAN_ID_QUERY_NAME} from '../utils/QueryParamaters';
-import {FullPlanDetails} from '../scheduler-page/FullPlanDetails';
-import {PlannedCourse} from '../scheduler-page/PlannedCourse';
+import {FullPlanDetails} from '../scheduler-page/data-models/FullPlanDetails';
+import {PlannedCourse} from '../scheduler-page/data-models/PlannedCourse';
 
 
 @Injectable(

@@ -1,4 +1,4 @@
-import {PrerequisiteType} from "../Prerequisite";
+import {PrerequisiteType} from "../data-models/Prerequisite";
 
 export class PrerequisiteNode {
   constructor(
