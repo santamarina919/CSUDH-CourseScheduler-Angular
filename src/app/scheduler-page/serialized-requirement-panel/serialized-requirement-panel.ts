@@ -1,5 +1,5 @@
 import {Component, input, Input} from '@angular/core';
-import {SerializedRequirement} from '../SerializedGraph';
+import {SerializedRequirement} from '../degree-progress/SerializedGraph';
 import {
   MatExpansionPanel,
   MatExpansionPanelDescription,

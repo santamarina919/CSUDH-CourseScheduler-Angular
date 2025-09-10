@@ -6,7 +6,7 @@ import {PrerequisiteNode} from './PrerequisiteNode';
 import {RequirementNode} from './RequirementNode';
 import {ScheduleEffect} from '../effects/ScheduleEffect';
 import {CourseAddBuilder} from '../effects/CourseAdd';
-import {SerializedGraph} from '../SerializedGraph';
+import {SerializedGraph} from '../degree-progress/SerializedGraph';
 
 
 export class CourseDegreeGraph {
