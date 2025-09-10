@@ -1,12 +1,12 @@
-import {Requirement} from './Requirement';
-import {Prerequisite, PrerequisiteType} from './Prerequisite';
-import {Course} from './Course';
+import {Requirement} from '../Requirement';
+import {Prerequisite, PrerequisiteType} from '../Prerequisite';
+import {Course} from '../Course';
 import {CourseNode} from './CourseNode';
 import {PrerequisiteNode} from './PrerequisiteNode';
 import {RequirementNode} from './RequirementNode';
-import {ScheduleEffect} from './effects/ScheduleEffect';
-import {CourseAddBuilder} from './effects/CourseAdd';
-import {SerializedGraph} from './SerializedGraph';
+import {ScheduleEffect} from '../effects/ScheduleEffect';
+import {CourseAddBuilder} from '../effects/CourseAdd';
+import {SerializedGraph} from '../SerializedGraph';
 
 
 export class CourseDegreeGraph {
@@ -247,7 +247,6 @@ export class CourseDegreeGraph {
 
     course.semesterPlanned = semester
 
-    //TODO: persist the planned semester
 
     const effect =  this.computeAllDependentPrerequisiteAvailability(course,semester, new CourseAddBuilder().for(course.id))
     return effect

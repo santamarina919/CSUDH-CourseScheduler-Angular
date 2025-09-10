@@ -1,12 +1,15 @@
-import {CourseDegreeGraph} from './CourseDegreeGraph';
+import {CourseDegreeGraph} from './CourseDegreeGraph/CourseDegreeGraph';
 import {FullPlanDetails} from './FullPlanDetails';
 import {Course} from './Course';
 import {Semester} from './Semester';
 import {calcTerm} from '../utils/CalcTermFromSemester';
 import {calcYear} from '../utils/CalcYearFromSemester';
 import {ScheduleEffect} from './effects/ScheduleEffect';
-import {PrerequisiteNode} from './PrerequisiteNode';
+import {PrerequisiteNode} from './CourseDegreeGraph/PrerequisiteNode';
 import {CourseRemoveBuilder, RemovedCourse} from './effects/CourseRemove';
+import {inject} from '@angular/core';
+import {DegreeService} from '../service/degree.service';
+import {PlanService} from '../service/plan.service';
 
 export class Effect {
   constructor(public id :string) {
@@ -15,16 +18,20 @@ export class Effect {
 }
 
 export class SchedulerPageState {
+  private planService :PlanService
   private planDetails :FullPlanDetails
   public courseDegreeGraph :CourseDegreeGraph
   public effects :ScheduleEffect[] = []
 
+
   constructor(
     courseDegreeGraph :CourseDegreeGraph,
-    planDetails :FullPlanDetails
+    planDetails :FullPlanDetails,
+    planService :PlanService
   ) {
     this.courseDegreeGraph = courseDegreeGraph
     this.planDetails = planDetails
+    this.planService = planService
   }
 
   fetchCourse(courseId :string){
@@ -75,6 +82,10 @@ export class SchedulerPageState {
 
   addCourseToSchedule(course :Course,semester :number) {
     console.info(`Adding ${course.name} to semester ${semester}`)
+    this.planService.addCourseToPlan(course.id,semester,this.planDetails.id)
+      .subscribe(response => {
+        console.log(response.status)
+      })
     const effect = this.courseDegreeGraph.addCourseToSchedule(course,semester)
     this.effects.push(effect.build())
   }
@@ -107,8 +118,9 @@ export class SchedulerPageState {
     return courseToBeRemoved
   }
 
-  unplanCourse(courseId: string) {
-    //TODO persist change
+  unplanCourse(courseId: string,removeApproved : boolean) {
+    this.planService.removeCourse(courseId,removeApproved,this.planDetails.id)
+      .subscribe(response => {})
     this.fetchCourse(courseId)!.semesterPlanned = null
   }
 

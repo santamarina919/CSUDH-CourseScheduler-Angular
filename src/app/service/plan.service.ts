@@ -43,4 +43,13 @@ export class PlanService {
   plannedCourses(planId: string) {
     return this.http.get<PlannedCourse[]>('protected/api/plan/planned', {params : new HttpParams().set(PLAN_ID_QUERY_NAME,planId), withCredentials : true})
   }
+
+  addCourseToPlan(courseId :string, semester :number, planId :string){
+    return this.http.post('protected/api/degree/add', {courseId : courseId, semester : semester}, {params : new HttpParams().set('planId', planId),withCredentials : true, observe : 'response'})
+  }
+
+  removeCourse(courseId: string, removeApproved: boolean, id: string) {
+    console.log("in apit")
+    return this.http.post('protected/api/degree/remove', {courseId : courseId, removeApproved : removeApproved}, {params : new HttpParams().set('planId', id),withCredentials : true, observe : 'response'})
+  }
 }

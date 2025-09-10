@@ -6,8 +6,8 @@ import {RouteParameters} from '../app.routes';
 import {forkJoin, Observable} from 'rxjs';
 import {DegreeService} from '../service/degree.service';
 import {PlanService} from '../service/plan.service';
-import {CourseDegreeGraphBuilder} from './CourseDegreeGraphBuilder';
-import {CourseDegreeGraph} from './CourseDegreeGraph';
+import {CourseDegreeGraphBuilder} from './CourseDegreeGraph/CourseDegreeGraphBuilder';
+import {CourseDegreeGraph} from './CourseDegreeGraph/CourseDegreeGraph';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {
   MatList,
@@ -130,7 +130,7 @@ export class SchedulerPage {
 
       const courseDegreeGraph = new CourseDegreeGraphBuilder(courses,requirements,prerequisites,planned,roots).outputGraph
 
-      this.state = new SchedulerPageState(courseDegreeGraph,planDetails)
+      this.state = new SchedulerPageState(courseDegreeGraph,planDetails,this.planService)
       this.isLoading.set(false)
     })
   }
@@ -179,13 +179,8 @@ export class SchedulerPage {
     this.removeDialog.open(RemoveDialog,{data : {toBeRemoved  : toBeRemoved, onRemoveClick : removeFunc}})
   }
 
-  setCourseUnplanned(courseId :string) {
-    this.state!.unplanCourse(courseId)
+  setCourseUnplanned(courseId: string) {
+    this.state!.unplanCourse(courseId, true)
   }
-
-
-  requirementChildrenAccessor = (requirement :SerializedRequirement) => requirement.childRequirements
-
-  requirementHasChild = (_:number,requirement :SerializedRequirement) => requirement.childRequirements.length > 0
 
 }

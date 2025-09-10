@@ -1,4 +1,4 @@
-import {PrerequisiteType} from "./Prerequisite";
+import {PrerequisiteType} from "../Prerequisite";
 
 export class PrerequisiteNode {
   constructor(

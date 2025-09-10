@@ -8,7 +8,7 @@ import {
   MatTreeNodeDef, MatTreeNodeOutlet, MatTreeNodePadding,
   MatTreeNodeToggle
 } from '@angular/material/tree';
-import {RequirementNode} from '../RequirementNode';
+import {RequirementNode} from '../CourseDegreeGraph/RequirementNode';
 import {NestedTreeControl} from '@angular/cdk/tree';
 import {MatIcon} from '@angular/material/icon';
 import {MatIconButton} from '@angular/material/button';
