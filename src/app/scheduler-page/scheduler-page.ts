@@ -37,9 +37,9 @@ import {
 import {MatDialog} from '@angular/material/dialog';
 import {RemoveDialog} from './remove-dialog/remove-dialog';
 import {CourseRemoveBuilder} from './effects/CourseRemove';
-import {SerializedRequirement} from './degree-progress/SerializedGraph';
 import {MatIcon} from '@angular/material/icon';
 import {SerializedRequirementPanel} from './serialized-requirement-panel/serialized-requirement-panel';
+import {SerializedRequirement} from './degree-progress/SerializedRequirement';
 
 
 const START_SEMESTER = 1

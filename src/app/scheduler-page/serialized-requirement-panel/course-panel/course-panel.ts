@@ -1,5 +1,4 @@
 import {Component, input, Input} from '@angular/core';
-import {SerializedCourse} from '../../degree-progress/SerializedGraph';
 import {
   MatExpansionPanel,
   MatExpansionPanelDescription,
@@ -7,6 +6,7 @@ import {
   MatExpansionPanelTitle
 } from '@angular/material/expansion';
 import {PrereqPanel} from './prereq-panel/prereq-panel';
+import {SerializedCourse} from '../../degree-progress/SerializedCourse';
 
 @Component({
   selector: 'app-course-panel',

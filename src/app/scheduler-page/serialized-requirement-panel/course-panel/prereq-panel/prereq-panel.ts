@@ -1,11 +1,11 @@
 import {Component, input, Input} from '@angular/core';
-import {SerializedPrerequisite} from '../../../degree-progress/SerializedGraph';
 import {
   MatExpansionPanel,
   MatExpansionPanelDescription,
   MatExpansionPanelHeader,
   MatExpansionPanelTitle
 } from '@angular/material/expansion';
+import {SerializedPrerequisite} from '../../../degree-progress/SerializedPrerequisite';
 
 @Component({
   selector: 'app-prereq-panel',
