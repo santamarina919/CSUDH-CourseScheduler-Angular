@@ -1,6 +1,6 @@
 <mat-expansion-panel>
   <mat-expansion-panel-header>
-    <mat-panel-title>Prereq - {{prereq().id.substring(0, 4) }}</mat-panel-title>
+    <mat-panel-title>Prereq - {{prereq().id.substring(0, 4) }} <p [ngClass]="statusClass">{{statusStr()}}</p> </mat-panel-title>
     <mat-panel-description>{{ prereq().description() }}</mat-panel-description>
   </mat-expansion-panel-header>
   <p>Course(s)</p>

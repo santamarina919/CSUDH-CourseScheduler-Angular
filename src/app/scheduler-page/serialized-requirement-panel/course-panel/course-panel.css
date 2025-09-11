@@ -1,0 +1,15 @@
+.planned {
+  color: green;
+}
+
+.available {
+  color: orange;
+}
+
+.unavailable {
+  color: red;
+}
+
+p {
+  margin-left: 2px;
+}

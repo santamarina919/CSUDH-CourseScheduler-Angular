@@ -6,6 +6,7 @@ import {
   MatExpansionPanelTitle
 } from '@angular/material/expansion';
 import {SerializedPrerequisite} from '../../../degree-progress/SerializedPrerequisite';
+import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-prereq-panel',
@@ -13,7 +14,8 @@ import {SerializedPrerequisite} from '../../../degree-progress/SerializedPrerequ
     MatExpansionPanel,
     MatExpansionPanelTitle,
     MatExpansionPanelDescription,
-    MatExpansionPanelHeader
+    MatExpansionPanelHeader,
+    NgClass
   ],
   templateUrl: './prereq-panel.html',
   styleUrl: './prereq-panel.css'
@@ -21,4 +23,17 @@ import {SerializedPrerequisite} from '../../../degree-progress/SerializedPrerequ
 export class PrereqPanel {
 
   prereq = input.required<SerializedPrerequisite>();
+
+  statusClass = ""
+
+  statusStr() {
+    if(this.prereq().semesterCompleted == null){
+      this.statusClass = "unavailable"
+      return "Not Completed"
+    }
+    else {
+      this.statusClass = "completed"
+      return `Completed on semester #${this.prereq().semesterCompleted}`
+    }
+  }
 }

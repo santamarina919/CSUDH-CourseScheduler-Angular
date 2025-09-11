@@ -1,6 +1,6 @@
 <mat-expansion-panel>
   <mat-expansion-panel-header>
-    <mat-panel-title>{{ course().id }}</mat-panel-title>
+    <mat-panel-title><p>{{ course().id }}</p> <p [ngClass]="statusClass" >{{statusStr()}}</p></mat-panel-title>
     <mat-panel-description> {{ course().name }} - {{ course().units }} units</mat-panel-description>
   </mat-expansion-panel-header>
   @if(course().rootPrereq == null) {

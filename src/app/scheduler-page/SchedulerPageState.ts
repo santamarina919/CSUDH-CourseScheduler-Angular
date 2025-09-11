@@ -12,11 +12,6 @@ import {DegreeService} from '../service/degree.service';
 import {PlanService} from '../service/plan.service';
 import {SerializedGraph} from './degree-progress/SerializedGraph';
 
-export class Effect {
-  constructor(public id :string) {
-  }
-
-}
 
 export class SchedulerPageState {
   private planService :PlanService

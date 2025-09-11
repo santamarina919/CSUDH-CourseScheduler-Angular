@@ -40,6 +40,7 @@ import {CourseRemoveBuilder} from './effects/CourseRemove';
 import {MatIcon} from '@angular/material/icon';
 import {SerializedRequirementPanel} from './serialized-requirement-panel/serialized-requirement-panel';
 import {SerializedRequirement} from './degree-progress/SerializedRequirement';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 
 const START_SEMESTER = 1
@@ -70,6 +71,8 @@ export class SchedulerPage {
   planService = inject(PlanService)
 
   removeDialog = inject(MatDialog)
+
+  snackbar = inject(MatSnackBar)
 
   state: SchedulerPageState | null = null;
 
@@ -182,5 +185,6 @@ export class SchedulerPage {
   setCourseUnplanned(courseId: string) {
     this.state!.unplanCourse(courseId, true)
   }
+
 
 }

@@ -72,7 +72,7 @@
       <h3>Your Degree and Your Progress</h3>
     </div>
     <mat-accordion>
-      @for (req of state!.courseDegreeGraph.serilizedGraph().requirements; track req.id) {
+      @for (req of state!.serializedGraph.requirements; track req.id) {
         <app-serialized-requirement-panel [requirement]="req"></app-serialized-requirement-panel>
       }
     </mat-accordion>

@@ -1,0 +1,10 @@
+.unavailable {
+  color: red;
+}
+.completed {
+  color: green;
+}
+
+p {
+  margin-left: 3px;
+}
