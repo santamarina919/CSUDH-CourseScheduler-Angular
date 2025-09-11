@@ -12,19 +12,30 @@ export class SerializedRequirement {
   public leafCourses: SerializedCourse[]
   public childRequirements: SerializedRequirement[]
 
-  constructor(requirement: Requirement, requirementMap: Map<string, Requirement>, courseMap: Map<string, Course>, fetchRootPrereq: (courseId: string) => (Prerequisite | null), prereqMap: Map<string, Prerequisite>) {
+  constructor(
+    requirement: Requirement,
+    requirementMap: Map<string, Requirement>,
+    courseMap: Map<string, Course>,
+    fetchRootPrereq: (courseId: string) => (Prerequisite | null),
+    prereqMap: Map<string, Prerequisite>,
+    fetchSemesterCourseCompleted: (courseId: string) => (number | null),
+    fetchSemesterCourseAvailable: (courseId: string) => (number | null),
+    fetchSemesterPrereqCompleted: (prereqId: string) => (number | null)
+  ) {
     this.id = requirement.requirementId
     this.name = requirement.name ?? "Unnamed Requirement"
     this.type = requirement.type
     this.childRequirements = []
     requirement.childRequirements.forEach(child => {
-      this.childRequirements.push(new SerializedRequirement(requirementMap.get(child)!, requirementMap, courseMap, fetchRootPrereq, prereqMap))
+      this.childRequirements.push(new SerializedRequirement(requirementMap.get(child)!, requirementMap, courseMap, fetchRootPrereq, prereqMap, fetchSemesterCourseCompleted, fetchSemesterCourseAvailable, fetchSemesterPrereqCompleted))
     })
 
     this.leafCourses = []
 
     requirement.leafCourses.forEach(course => {
-      this.leafCourses.push(new SerializedCourse(courseMap.get(course)!, fetchRootPrereq(course), prereqMap))
+      const semesterCompleted = fetchSemesterCourseCompleted(course)
+      const semesterAvail = fetchSemesterCourseAvailable(course)
+      this.leafCourses.push(new SerializedCourse(courseMap.get(course)!, fetchRootPrereq(course), prereqMap,semesterCompleted,semesterAvail,fetchSemesterPrereqCompleted))
     })
   }
 

@@ -10,6 +10,7 @@ import {CourseRemoveBuilder, RemovedCourse} from './effects/CourseRemove';
 import {inject} from '@angular/core';
 import {DegreeService} from '../service/degree.service';
 import {PlanService} from '../service/plan.service';
+import {SerializedGraph} from './degree-progress/SerializedGraph';
 
 export class Effect {
   constructor(public id :string) {
@@ -20,18 +21,18 @@ export class Effect {
 export class SchedulerPageState {
   private planService :PlanService
   private planDetails :FullPlanDetails
+  public serializedGraph :SerializedGraph
   public courseDegreeGraph :CourseDegreeGraph
   public effects :ScheduleEffect[] = []
 
-
   constructor(
-    courseDegreeGraph :CourseDegreeGraph,
-    planDetails :FullPlanDetails,
-    planService :PlanService
-  ) {
+    courseDegreeGraph: CourseDegreeGraph,
+    planDetails: FullPlanDetails,
+    planService: PlanService) {
     this.courseDegreeGraph = courseDegreeGraph
     this.planDetails = planDetails
     this.planService = planService
+    this.serializedGraph =  this.courseDegreeGraph.serilizedGraph()
   }
 
   fetchCourse(courseId :string){
@@ -81,11 +82,8 @@ export class SchedulerPageState {
   }
 
   addCourseToSchedule(course :Course,semester :number) {
-    console.info(`Adding ${course.name} to semester ${semester}`)
     this.planService.addCourseToPlan(course.id,semester,this.planDetails.id)
-      .subscribe(response => {
-        console.log(response.status)
-      })
+      .subscribe(response => {})
     const effect = this.courseDegreeGraph.addCourseToSchedule(course,semester)
     this.effects.push(effect.build())
   }

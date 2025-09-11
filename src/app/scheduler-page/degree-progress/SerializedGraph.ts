@@ -15,9 +15,12 @@ export class SerializedGraph {
     private prereqMap : Map<string, Prerequisite>,
     private completedRequirements :Map<string,number | undefined>,
     private fetchRootPrereq :(courseId :string) => Prerequisite | null,
+    private fetchSemesterCourseCompleted :(courseId :string) => number | null,
+    private fetchSemesterCourseAvailable :(courseId :string) => number | null,
+    private fetchSemesterPrereqCompleted :(prereqId :string) => number | null,
   ) {
     this.rootRequirements.forEach(requirement => {
-      this.requirements.push(new SerializedRequirement(requirement, requirementMap, courseMap,fetchRootPrereq,prereqMap))
+      this.requirements.push(new SerializedRequirement(requirement, requirementMap, courseMap,fetchRootPrereq,prereqMap,fetchSemesterCourseCompleted,fetchSemesterCourseAvailable,fetchSemesterPrereqCompleted))
     })
   }
 

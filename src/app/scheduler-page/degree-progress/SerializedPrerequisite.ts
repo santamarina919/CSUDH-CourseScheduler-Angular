@@ -5,14 +5,17 @@ export class SerializedPrerequisite {
   public type: PrerequisiteType
   public leafCourses: string[]
   public childPrereqs: SerializedPrerequisite[]
+  public semesterCompleted :number | null
 
-  constructor(prereq: Prerequisite, prereqMap: Map<string, Prerequisite>) {
+  constructor(prereq: Prerequisite, prereqMap: Map<string, Prerequisite>, fetchSemesterPrereqCompleted: (prereqId: string) => (number | null), semesterCompleted: number | null) {
     this.id = prereq.prereqId
     this.type = prereq.type
     this.leafCourses = prereq.leafCourses
     this.childPrereqs = []
+    this.semesterCompleted = semesterCompleted
     prereq.childrenPrereqs.forEach(child => {
-      this.childPrereqs.push(new SerializedPrerequisite(prereqMap.get(child)!, prereqMap))
+      const semesterChildCompleted = fetchSemesterPrereqCompleted(child)
+      this.childPrereqs.push(new SerializedPrerequisite(prereqMap.get(child)!, prereqMap, fetchSemesterPrereqCompleted, semesterChildCompleted))
     })
   }
 

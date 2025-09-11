@@ -420,10 +420,30 @@ export class CourseDegreeGraph {
       return this.prerequisites.get(prereqId)!
     }
 
-    return new SerializedGraph(this.rootRequirements.map(id => this.requirements.get(id)!),this.requirements,this._courses,this.prerequisites,this.earliestSemesterSatisfied,fetchRootPrereq)
+    return new SerializedGraph(
+      this.rootRequirements.map(id => this.requirements.get(id)!),
+      this.requirements,
+      this._courses,
+      this.prerequisites,
+      this.earliestSemesterSatisfied,
+      fetchRootPrereq,
+      this.semesterCourseCompleted,
+      this.semesterCourseAvailable,
+      this.semesterPrereqCompleted
+      )
   }
 
+  public semesterCourseCompleted = (courseId :string) =>{
+    return this._courses.get(courseId)!.semesterPlanned
+  }
 
+  public semesterCourseAvailable = (courseId :string) => {
+    return this._courses.get(courseId)!.semesterPlanned
+  }
+
+  public semesterPrereqCompleted = (prereqId :string) => {
+    return this.earliestSemesterSatisfied.get(prereqId) ?? null
+  }
 }
 
 
