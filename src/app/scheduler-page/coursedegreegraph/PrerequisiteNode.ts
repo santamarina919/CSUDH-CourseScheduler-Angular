@@ -21,15 +21,15 @@ export abstract class PrerequisiteNode {
 
   public abstract isCompleted() : boolean
 
-  public abstract notifyOfCompletedCourse(courseId :string, semester:number) : void
+  public abstract notifyOfCompletedCourse(courseId :string, semester:number) : boolean
 
-  public abstract notifyOfCompletedChild(courseId :string, semester:number) :void
+  public abstract notifyOfCompletedChild(prereqId :string, semester:number) : boolean
 
   protected abstract updateSemesterCompleted(semester: number) :void
 }
 
 
-class AndPrerequisiteNode extends PrerequisiteNode{
+export class AndPrerequisiteNode extends PrerequisiteNode{
 
   public isCompleted() {
     return this.completedChildPrereqs.size + this.completedCourses.size == this.completedCourses.size + this.outgoingCourses.length
@@ -40,6 +40,7 @@ class AndPrerequisiteNode extends PrerequisiteNode{
     this.completedCourses.add(courseId)
 
     this.updateSemesterCompleted(semester)
+    return this.isCompleted()
   }
 
   public notifyOfCompletedChild(prereqId :string, semester :number){
@@ -47,6 +48,7 @@ class AndPrerequisiteNode extends PrerequisiteNode{
     this.completedChildPrereqs.add(prereqId)
 
     this.updateSemesterCompleted(semester);
+    return this.isCompleted()
   }
 
   protected updateSemesterCompleted(semester: number) {
@@ -58,20 +60,22 @@ class AndPrerequisiteNode extends PrerequisiteNode{
   }
 }
 
-class OrPrerequisiteNode extends PrerequisiteNode {
+export class OrPrerequisiteNode extends PrerequisiteNode {
 
   public isCompleted(): boolean {
     return this.completedChildPrereqs.size > 0 || this.completedCourses.size > 0
   }
 
-  public notifyOfCompletedChild(courseId: string, semester: number): void {
+  public notifyOfCompletedChild(courseId: string, semester: number) {
     this.completedChildPrereqs.add(courseId)
     this.updateSemesterCompleted(semester)
+    return this.isCompleted()
   }
 
-  public notifyOfCompletedCourse(courseId: string, semester: number): void {
+  public notifyOfCompletedCourse(courseId: string, semester: number) {
     this.completedCourses.add(courseId)
     this.updateSemesterCompleted(semester)
+    return this.isCompleted()
   }
 
   protected updateSemesterCompleted(semester: number): void {

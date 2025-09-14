@@ -10,11 +10,6 @@ import {SerializedGraph} from '../degree-progress/SerializedGraph';
 
 
 export class CourseDegreeGraph {
-  private requirementNodeById = new Map<string,RequirementNode>();
-
-  private prerequisiteNodeById = new Map<string,PrerequisiteNode>();
-
-  private courseNodeById = new Map<string,CourseNode>();
 
   //Returns the earliest semester a prerequisite had all its prerequisites completed or null if it has not been completed
   private earliestSemesterSatisfied :Map<string,number | undefined>;
@@ -28,17 +23,6 @@ export class CourseDegreeGraph {
     private reqNodes :Map<string,RequirementNode>,
     private rootRequirements :string[]
   ){
-    this.reqNodes.forEach(requirement => {
-      this.requirementNodeById.set(requirement.requirementId,requirement)
-    })
-
-    this.prereqNodes.forEach(node => {
-      this.prerequisiteNodeById.set(node.prerequisiteId,node)
-    })
-
-    this.courseNodes.forEach(node => {
-      this.courseNodeById.set(node.courseId,node)
-    })
     this.earliestSemesterSatisfied = new Map<string,number | undefined>()
     this.setNoPrereqCoursesAvailable()
     this.initState()
@@ -56,7 +40,7 @@ export class CourseDegreeGraph {
 
     const plannedCourses = Array.from(this._courses.values()).filter(course => course.semesterPlanned != null).sort((a, b) => a.semesterPlanned! - b.semesterPlanned!)
     plannedCourses.forEach(course => {
-      const semesterAvailable = this.determineAvailability(this.courseNodeById.get(course.id)!)
+      const semesterAvailable = this.determineAvailability(this.courseNodes.get(course.id)!)
       if(semesterAvailable != null){
           course.semesterAvailable = semesterAvailable
       }
@@ -73,7 +57,7 @@ export class CourseDegreeGraph {
       return 0
     }
 
-    const rootPrereq = this.prerequisiteNodeById.get(rootNode.rootPrereq)!
+    const rootPrereq = this.prereqNodes.get(rootNode.rootPrereq)!
     let semesterAvailable :number | null = null
     if(rootPrereq.type == 'AND'){
       semesterAvailable = this.determineAndPrerequisiteCompleteness(rootPrereq)
@@ -101,7 +85,7 @@ export class CourseDegreeGraph {
     let earliestReqCompleted :number | null = null
 
     rootPrereq.outgoingPrereqs.forEach(prereq => {
-      const prereqDetails = this.prerequisiteNodeById.get(prereq)!
+      const prereqDetails = this.prereqNodes.get(prereq)!
       if(prereqDetails.type == 'AND'){
         earliestReqCompleted = this.determineAndPrerequisiteCompleteness(prereqDetails)
       }
@@ -141,7 +125,7 @@ export class CourseDegreeGraph {
     let latestReqCompleted :number = Number.MIN_SAFE_INTEGER
 
     rootPrereq.outgoingPrereqs.forEach(prereq => {
-      const prereqDetails = this.prerequisiteNodeById.get(prereq)!
+      const prereqDetails = this.prereqNodes.get(prereq)!
       if(prereqDetails.type == 'AND'){
         const semesterCompleted = this.determineAndPrerequisiteCompleteness(prereqDetails)
         if(semesterCompleted == null){
@@ -214,10 +198,10 @@ export class CourseDegreeGraph {
                           onRootPrerequisite :(prereq :PrerequisiteNode) => void = () => {})
     :string[] {
     let allDependentCourses :string[] = []
-    const courseNode = this.courseNodeById.get(courseId)!
+    const courseNode = this.courseNodes.get(courseId)!
 
     courseNode.incomingPreqreqs.forEach(prereqId => {
-      const dependentCourseFromThisNode = this.findRootCourse(this.prerequisiteNodeById.get(prereqId)!, [],onPrereqNode,onRootPrerequisite)
+      const dependentCourseFromThisNode = this.findRootCourse(this.prereqNodes.get(prereqId)!, [],onPrereqNode,onRootPrerequisite)
       allDependentCourses = [...allDependentCourses,...dependentCourseFromThisNode]
     })
 
@@ -227,7 +211,7 @@ export class CourseDegreeGraph {
   private findRootCourse(prereq: PrerequisiteNode, courses :string[],onPrereqNode :(prereq :PrerequisiteNode) => void, onRootPrereq : (prereq :PrerequisiteNode) => void ) {
     onPrereqNode(prereq)
     prereq.incomingPrereqs.forEach(prereqId => {
-        this.findRootCourse(this.prerequisiteNodeById.get(prereqId)!,courses,onPrereqNode,onRootPrereq)
+        this.findRootCourse(this.prereqNodes.get(prereqId)!,courses,onPrereqNode,onRootPrereq)
     })
     if(prereq.parentCourse != null){
       onRootPrereq(prereq)
@@ -237,74 +221,53 @@ export class CourseDegreeGraph {
   }
 
 
-  addCourseToSchedule(course: Course, semester :number) {
-    if(course.semesterAvailable == null){
+  /**
+   * Mark a node as being planned for some semester. Call to this function will traverse graph starting at the node
+   * with the specified course id. It will mark neighboring course nodes as available if all prerequisites are fullfilled
+   * @param courseId the id of the course being added
+   * @param semester the semester it will be added to
+   */
+  public addCourseToSchedule(courseId :string, semester :number) {
+    const node = this.courseNodes.get(courseId)!
+    if(node.semesterAvailable == null){
       throw new Error('Course must have semester available something when wrong in our logic')
     }
-    if(course.semesterAvailable >= semester){
+    if(node.semesterAvailable >= semester){
       throw new Error('Course must have semester available less than or equal to semester when wrong in our logic')
     }
 
-    course.semesterPlanned = semester
+    node.semesterPlanned = semester
 
-
-    const effect =  this.computeAllDependentPrerequisiteAvailability(course,semester, new CourseAddBuilder().for(course.id))
-    return effect
+    this.courseCompletionTraversal(courseId,semester)
 
   }
 
-  private computeAllDependentPrerequisiteAvailability(addedCourse: Course, semesterPlanned: number,addEffect :CourseAddBuilder) :CourseAddBuilder {
-    const courseNode = this.courseNodeById.get(addedCourse.id)!
-
-    console.log("prerequisites that depend on this course -> ",courseNode.incomingPreqreqs)
-    for(const dependentNodeId of courseNode.incomingPreqreqs){
-      const node = this.prerequisiteNodeById.get(dependentNodeId)!
-
-      const semesterAvail = this.earliestSemesterSatisfied.get(dependentNodeId)
-
-      if(semesterAvail != null && node.type == 'OR' &&  semesterPlanned < semesterAvail ){
-        this.earliestSemesterSatisfied.set(dependentNodeId, semesterPlanned)
-        addEffect.statisfiesPrerequisite(dependentNodeId)
-        return addEffect
+  private courseCompletionTraversal(courseId :string, semesterCompleted :number){
+    const courseNode = this.courseNodes.get(courseId)!
+    courseNode.incomingPreqreqs.forEach(prereqId => {
+      const prereqNode = this.prereqNodes.get(prereqId)!
+      const isCompleted = prereqNode.notifyOfCompletedCourse(courseId,semesterCompleted)
+      if(isCompleted){
+        this.prereqTraversal(prereqNode,semesterCompleted)
       }
+    })
+  }
 
-      //This line and compute avail for parent nodes may be the source of bugs regarding course availability
-      const semesterCompleted = this.computePrerequisiteAvailabilityForParentNodes(node,addEffect)
-      if(semesterCompleted != null){
-        this.earliestSemesterSatisfied.set(dependentNodeId, semesterCompleted)
-      }
-
-
-
+  private prereqTraversal(completedPrereq :PrerequisiteNode, semesterCompleted :number){
+    if(completedPrereq.parentCourse != null){
+      this.courseNodes.get(completedPrereq.parentCourse)!.semesterAvailable = semesterCompleted + 1
+    }
+    else{
+      completedPrereq.incomingPrereqs.forEach(prereqId => {
+        const prereqNode = this.prereqNodes.get(prereqId)!
+        const isCompleted = prereqNode.notifyOfCompletedChild(prereqId,semesterCompleted)
+        if(isCompleted){
+          this.prereqTraversal(prereqNode,semesterCompleted)
+        }
+      })
     }
 
-    return addEffect
   }
-
-
-  private computePrerequisiteAvailabilityForParentNodes(node :PrerequisiteNode, effect :CourseAddBuilder) :number | null {
-    const prereqFunction = this.completionFunction(node.type)
-
-    const semesterCompleted = prereqFunction(node)
-
-    if(semesterCompleted != null){
-      if(node.parentCourse != null){
-         this.updateCourseAvailability(node.parentCourse, semesterCompleted)
-         effect.freesCourse(node.parentCourse,semesterCompleted)
-      }
-      else {
-        node.incomingPrereqs.forEach(prereqId => {
-
-          const parentNode = this.prerequisiteNodeById.get(prereqId)!
-          this.computePrerequisiteAvailabilityForParentNodes(parentNode,effect)
-        })
-      }
-    }
-
-    return semesterCompleted
-  }
-
-
 
   private isValidOrPrereqNode = (prereqNode: PrerequisiteNode) :number | null => {
     let earliestSemesterCompleted: number | null = null;
@@ -324,7 +287,7 @@ export class CourseDegreeGraph {
         return semesterAvail
       }
 
-      const prereqNode = this.prerequisiteNodeById.get(prereqId)!
+      const prereqNode = this.prereqNodes.get(prereqId)!
 
       const prereqFunction = this.completionFunction(prereqNode.type)
 
@@ -358,7 +321,7 @@ export class CourseDegreeGraph {
 
     const uncompletedChildNodeExists = prereqNode.outgoingPrereqs.find(prereqId => {
 
-      const childPrereqNode = this.prerequisiteNodeById.get(prereqId)!
+      const childPrereqNode = this.prereqNodes.get(prereqId)!
 
       const prereqFunction = this.completionFunction(childPrereqNode.type)
 
@@ -383,7 +346,6 @@ export class CourseDegreeGraph {
     return latestSemesterCompleted
   }
 
-  //TODO this causes error must "this" is undefined lost when i returned reference.
   private completionFunction (type :PrerequisiteType)  :(prereqNode: PrerequisiteNode) => number | null  {
     if(type == 'AND'){
      return this.isValidAndPrereqNode
@@ -404,16 +366,15 @@ export class CourseDegreeGraph {
     course.semesterAvailable = semester
   }
 
-  isPrereqCompelted(prereqId: string) {
+  isPrereqCompleted(prereqId: string) {
     return this.earliestSemesterSatisfied.get(prereqId) != null
   }
 
 
-  //Serilized so it could be displayed in html
-  public serilizedGraph() {
+  public serializedGraph() {
 
     const fetchRootPrereq = (courseId :string) => {
-      const prereqId = this.courseNodeById.get(courseId)!.rootPrereq
+      const prereqId = this.courseNodes.get(courseId)!.rootPrereq
       if(prereqId == null){
         return null
       }

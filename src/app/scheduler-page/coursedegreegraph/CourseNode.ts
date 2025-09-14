@@ -1,4 +1,7 @@
 export class CourseNode {
+
+  public semesterPlanned :number | null = null
+  public semesterAvailable :number | null = null
   constructor(
     public courseId: string,
     public incomingRequirements: string[],

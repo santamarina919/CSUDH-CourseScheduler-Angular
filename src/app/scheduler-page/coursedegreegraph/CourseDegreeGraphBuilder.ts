@@ -4,7 +4,7 @@ import {Prerequisite} from '../data-models/Prerequisite';
 import {Course} from '../data-models/Course';
 import {PlannedCourse} from '../data-models/PlannedCourse';
 import {CourseNode} from './CourseNode';
-import {PrerequisiteNode} from './PrerequisiteNode';
+import {AndPrerequisiteNode, OrPrerequisiteNode, PrerequisiteNode} from './PrerequisiteNode';
 import {RequirementNode} from './RequirementNode';
 
 
@@ -88,8 +88,13 @@ export class CourseDegreeGraphBuilder {
 
   private createPrerequisiteNodes() {
     const prereqNodes = this.prerequisites!.map(prerequisite => {
+      if(prerequisite.type == 'AND'){
+        return new AndPrerequisiteNode(prerequisite.prereqId, prerequisite.childrenPrereqs, prerequisite.leafCourses,[],prerequisite.type,prerequisite.parentPrereq == null ? prerequisite.parentCourse : null)
+      }
+      else{
+        return new OrPrerequisiteNode(prerequisite.prereqId, prerequisite.childrenPrereqs, prerequisite.leafCourses,[],prerequisite.type,prerequisite.parentPrereq == null ? prerequisite.parentCourse : null)
 
-      return new PrerequisiteNode(prerequisite.prereqId, prerequisite.childrenPrereqs, prerequisite.leafCourses,[],prerequisite.type,prerequisite.parentPrereq == null ? prerequisite.parentCourse : null)
+      }
     })
 
     const prereqNodesMap = new Map<string, PrerequisiteNode>()

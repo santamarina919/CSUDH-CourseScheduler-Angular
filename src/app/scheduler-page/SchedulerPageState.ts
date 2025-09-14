@@ -27,7 +27,7 @@ export class SchedulerPageState {
     this.courseDegreeGraph = courseDegreeGraph
     this.planDetails = planDetails
     this.planService = planService
-    this.serializedGraph =  this.courseDegreeGraph.serilizedGraph()
+    this.serializedGraph =  this.courseDegreeGraph.serializedGraph()
   }
 
   fetchCourse(courseId :string){
@@ -72,15 +72,21 @@ export class SchedulerPageState {
     return this.courseDegreeGraph.roots().map(root => this.courseDegreeGraph.fetchRequirementBy(root)!)
   }
 
-  availableCourses(semester :number) {
+  availableCourses(semester :number)  {
     return this.courseDegreeGraph.availableCourses(semester)
   }
 
-  addCourseToSchedule(course :Course,semester :number) {
+  //***********************MODIFYING STATE FUNCTIONS************************************
+  /**
+   * Add a course to the users schedule. Function will first validate move with underlying graph before persisting state to
+   * database
+   * @param course
+   * @param semester
+   */
+  public addCourseToSchedule(course :Course,semester :number) {
+    this.courseDegreeGraph.addCourseToSchedule(course.id,semester)
     this.planService.addCourseToPlan(course.id,semester,this.planDetails.id)
       .subscribe(response => {})
-    const effect = this.courseDegreeGraph.addCourseToSchedule(course,semester)
-    this.effects.push(effect.build())
   }
 
   removeCourseFromSchedule(courseId :string, removalEffect :CourseRemoveBuilder) {
@@ -90,7 +96,7 @@ export class SchedulerPageState {
     const onPrereqNode = (prereq :PrerequisiteNode) => {
 
       prereq.incomingPrereqs.forEach(prereqId => {
-        const isCompleted = this.courseDegreeGraph.isPrereqCompelted(prereqId)
+        const isCompleted = this.courseDegreeGraph.isPrereqCompleted(prereqId)
         if(isCompleted){
           removalEffect.uncompletesPrereq(prereqId)
         }
