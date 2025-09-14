@@ -143,7 +143,7 @@ export class SchedulerPage {
   }
 
 
-  handleDropEvent(event :CdkDragDrop<number>) {
+  addCourseToSemester(event :CdkDragDrop<number>) {
     this.invalidSemesterDrops.set(0)
     if(event.previousContainer === event.container){
       return

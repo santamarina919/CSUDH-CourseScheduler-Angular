@@ -8,7 +8,7 @@
     <div class="planningContainer" cdkDropListGroup>
       <div class="planningSectionContainer">
         <h3>Available for {{ semesterTerm() }} {{ semesterYear() }}</h3>
-        <div cdkDropList (cdkDropListDropped)="handleDropEvent($event)">
+        <div cdkDropList (cdkDropListDropped)="addCourseToSemester($event)">
           @for (course of state!.availableCourses(semesterNumber()); track course.id) {
             <div cdkDrag cdkDragPreviewContainer="parent" (cdkDragStarted)="handleDragStartEvent(course)" [cdkDragData]="course" class="availableCourse">
               {{ course.id }} - {{ course.name }}
@@ -21,8 +21,15 @@
         <div class="semesterList">
           @for (semester of state!.semesters(); track semester.semester) {
 
-            <div [ngClass]="semester.semester <= this.invalidSemesterDrops() ? 'hideElement' : ''" class="semester" cdkDropList cdkScrollable (cdkDropListDropped)="handleDropEvent($event)" [cdkDropListEnterPredicate]="canDropPredicate"
-                 (cdkDropListEntered)="handleDragEnter(semester.semester)" [cdkDropListData]="semester.semester" >
+            <div
+                 cdkDropList
+                 cdkScrollable
+                 [ngClass]="semester.semester <= this.invalidSemesterDrops() ? 'hideElement' : ''" class="semester"
+                 (cdkDropListDropped)="addCourseToSemester($event)"
+                 [cdkDropListEnterPredicate]="canDropPredicate"
+                 (cdkDropListEntered)="handleDragEnter(semester.semester)"
+                 [cdkDropListData]="semester.semester"
+            >
                 <h4 (click)="handleSemesterHeaderClick(semester.semester)">{{ semester.term }} - {{ semester.year }}
                   Semester# {{ semester.semester }}</h4>
                 <div class="course">
