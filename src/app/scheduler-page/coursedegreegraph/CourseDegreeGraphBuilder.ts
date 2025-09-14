@@ -27,9 +27,9 @@ export class CourseDegreeGraphBuilder {
 
   private buildGraph() {
 
-    this.initCourses()
-
     const courseNodesMap = this.createCourseNodes()
+
+    this.initCourses(courseNodesMap)
 
     this.findRootPrerequisiteNodes(courseNodesMap);
 
@@ -41,38 +41,10 @@ export class CourseDegreeGraphBuilder {
     const prereqNodesMap = this.createPrerequisiteNodes()
 
     this.extractPrereqEdges(prereqNodesMap, courseNodesMap);
-    const courseMap = this.associateCourseById();
-    const prereqMap = this.associatePrerequisiteById();
-    const reqMap = this.associateRequirementById();
 
 
-    return new CourseDegreeGraph(courseMap,prereqMap,reqMap,courseNodesMap,prereqNodesMap,reqNodesMap,this.rootsOfDegree!)
+    return new CourseDegreeGraph(courseNodesMap,prereqNodesMap,reqNodesMap)
   }
-
-  private associateRequirementById() {
-    const reqMap = new Map<string, Requirement>()
-    this.requirements!.forEach(req => {
-      reqMap.set(req.requirementId, req)
-    })
-    return reqMap;
-  }
-
-  private associatePrerequisiteById() {
-    const prereqMap = new Map<string, Prerequisite>()
-    this.prerequisites!.forEach(prereq => {
-      prereqMap.set(prereq.prereqId, prereq)
-    })
-    return prereqMap;
-  }
-
-  private associateCourseById() {
-    const courseMap = new Map<string, Course>()
-    this.courses!.forEach(course => {
-      courseMap.set(course.id, course)
-    })
-    return courseMap;
-  }
-
   private extractPrereqEdges(prereqNodesMap: Map<string, PrerequisiteNode>, courseNodesMap: Map<string, CourseNode>) {
     Array.from(prereqNodesMap.values()).forEach(prereqNode => {
       prereqNode.outgoingPrereqs.forEach(prereq => {
@@ -159,18 +131,18 @@ export class CourseDegreeGraphBuilder {
    * Api does not connect data about a certain course together. I need to do that and this function does that with plan data
    * Basically checks to see if its planned and initializes it if it has been planned. Also initialized fields to null to denote
    * that they have no value instead of leaving it as undefined
-   * @param course
    * @private
    */
-  private initCourses() {
+  private initCourses(courseNodesMap: Map<string, CourseNode>) {
 
     this.courses!.forEach(course => {
-      course.semesterAvailable = null
-      course.semesterPlanned = null
+      const courseNode = courseNodesMap.get(course.id)!
+      courseNode.semesterAvailable = null
+      courseNode.semesterPlanned = null
 
       const planData = this.plannedCourses!.find(data => data.courseId === course.id) ?? null
       if (planData != null) {
-        course.semesterPlanned = planData.semester
+        courseNode.semesterPlanned = planData.semester
       }
     })
 
