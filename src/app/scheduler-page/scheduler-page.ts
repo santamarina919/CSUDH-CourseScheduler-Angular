@@ -41,6 +41,7 @@ import {MatIcon} from '@angular/material/icon';
 import {SerializedRequirementPanel} from './serialized-requirement-panel/serialized-requirement-panel';
 import {SerializedRequirement} from './degree-progress/SerializedRequirement';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {PlanningContainer} from './planning-container/planning-container';
 
 
 const START_SEMESTER = 1
@@ -48,16 +49,10 @@ const START_SEMESTER = 1
 @Component({
   selector: 'app-schedule-page',
   imports: [
-    CdkDrag,
-    CdkDropList,
-    CdkDropListGroup,
-    NgClass,
-    CdkScrollable,
     MatExpansionPanel,
     MatExpansionPanelTitle,
     MatExpansionPanelHeader,
-    MatAccordion,
-    SerializedRequirementPanel
+    PlanningContainer,
   ],
   templateUrl: './scheduler-page.html',
   styleUrl: './scheduler-page.css'
@@ -133,27 +128,27 @@ export class SchedulerPage {
 
       const courseDegreeGraph = new CourseDegreeGraphBuilder(courses,requirements,prerequisites,planned,roots).outputGraph
 
-      this.state = new SchedulerPageState(courseDegreeGraph,planDetails,this.planService)
+      this.state = new SchedulerPageState(courseDegreeGraph,planDetails,this.planService,courses)
       this.isLoading.set(false)
     })
   }
-
-  handleDragStartEvent(draggedCourse :Course) {
-    this.invalidSemesterDrops.set(draggedCourse.semesterAvailable!)
-  }
-
-
-  addCourseToSemester(event :CdkDragDrop<number>) {
-    this.invalidSemesterDrops.set(0)
-    if(event.previousContainer === event.container){
-      return
-    }
-    const courseData = event.item.data as Course
-    const availCourseDrag = courseData.semesterAvailable != null && courseData.semesterPlanned == null
-    if(availCourseDrag){
-      this.state!.addCourseToSchedule(courseData,this.semesterDrop())
-    }
-  }
+  //
+  // handleDragStartEvent(draggedCourse :Course) {
+  //   this.invalidSemesterDrops.set(draggedCourse.semesterAvailable!)
+  // }
+  //
+  //
+  // addCourseToSemester(event :CdkDragDrop<number>) {
+  //   this.invalidSemesterDrops.set(0)
+  //   if(event.previousContainer === event.container){
+  //     return
+  //   }
+  //   const courseData = event.item.data as Course
+  //   const availCourseDrag = courseData.semesterAvailable != null && courseData.semesterPlanned == null
+  //   if(availCourseDrag){
+  //     this.state!.addCourseToSchedule(courseData,this.semesterDrop())
+  //   }
+  // }
 
 
   handleSemesterHeaderClick(semester: number) {
@@ -163,28 +158,28 @@ export class SchedulerPage {
   handleDragEnter(semester :number) {
     this.semesterDrop.set(semester)
   }
-  canDropPredicate = (drag :CdkDrag, list :CdkDropList) => {
-    const course = drag.data as Course
-    const semester = list.data as number
-    return (course.semesterAvailable!) == 0 || (semester > course.semesterAvailable!)
-  }
+  // canDropPredicate = (drag :CdkDrag, list :CdkDropList) => {
+  //   const course = drag.data as Course
+  //   const semester = list.data as number
+  //   return (course.semesterAvailable!) == 0 || (semester > course.semesterAvailable!)
+  // }
+  //
+  //
+  // handlePlannedCourseClick(courseId: string) {
+  //   const removeEffect = new CourseRemoveBuilder()
+  //   const toBeRemoved = this.state?.removeCourseFromSchedule(courseId,removeEffect)
+  //   const removeFunc = () => {
+  //     toBeRemoved?.forEach(course => {
+  //       this.setCourseUnplanned(course.id)
+  //       this.state?.effects.push(removeEffect.build())
+  //     })
+  //   }
+  //   this.removeDialog.open(RemoveDialog,{data : {toBeRemoved  : toBeRemoved, onRemoveClick : removeFunc}})
+  // }
 
-
-  handlePlannedCourseClick(courseId: string) {
-    const removeEffect = new CourseRemoveBuilder()
-    const toBeRemoved = this.state?.removeCourseFromSchedule(courseId,removeEffect)
-    const removeFunc = () => {
-      toBeRemoved?.forEach(course => {
-        this.setCourseUnplanned(course.id)
-        this.state?.effects.push(removeEffect.build())
-      })
-    }
-    this.removeDialog.open(RemoveDialog,{data : {toBeRemoved  : toBeRemoved, onRemoveClick : removeFunc}})
-  }
-
-  setCourseUnplanned(courseId: string) {
-    this.state!.unplanCourse(courseId, true)
-  }
+  // setCourseUnplanned(courseId: string) {
+  //   this.state!.unplanCourse(courseId, true)
+  // }
 
 
 }

@@ -14,69 +14,23 @@ import {SerializedGraph} from './degree-progress/SerializedGraph';
 
 
 export class SchedulerPageState {
-  private planService :PlanService
-  private planDetails :FullPlanDetails
-  public serializedGraph :SerializedGraph
-  public courseDegreeGraph :CourseDegreeGraph
   public effects :ScheduleEffect[] = []
 
+  private courseMap = new Map<string,Course>()
+
   constructor(
-    courseDegreeGraph: CourseDegreeGraph,
-    planDetails: FullPlanDetails,
-    planService: PlanService) {
-    this.courseDegreeGraph = courseDegreeGraph
-    this.planDetails = planDetails
-    this.planService = planService
-    this.serializedGraph =  this.courseDegreeGraph.serializedGraph()
+    private courseDegreeGraph: CourseDegreeGraph,
+    private planDetails: FullPlanDetails,
+    private planService: PlanService,
+    private courses : Course[]
+  ) {
+    courses.forEach(course => {
+      this.courseMap.set(course.id,course)
+    })
   }
 
-  fetchCourse(courseId :string){
-    return this.courseDegreeGraph.fetchCourse(courseId)
-  }
+  //*********************** EXPOSED STATE FUNCTIONS**********************
 
-  //********FUNCTIONS RELATED TO PLANNED SEMESTERS********
-
-  private largestEmptySemester :number = 0
-
-  private DEFAULT_MAX = 2 * 4
-
-  setLargestEmptySemester(semester :number){
-    if(semester < 1){
-      throw new Error('Semester must be greater than 0')
-    }
-    this.largestEmptySemester = semester
-  }
-  semesters() :Semester[] {
-
-    const semesterMap = this.courseDegreeGraph.groupCoursesBySemeter()
-
-    const largestPlannedSemester = Math.max(...Array.from(semesterMap.keys()),this.DEFAULT_MAX)
-
-    const largestSemester = Math.max(this.largestEmptySemester,largestPlannedSemester)
-
-    const semesters :Semester[] = []
-
-    for(let semesterNum = 1; semesterNum <= largestSemester; semesterNum++){
-      if(semesterMap.has(semesterNum)){
-        const semesterCourses = semesterMap.get(semesterNum)!
-        semesters.push(new Semester(semesterNum,semesterCourses,calcTerm(this.planDetails.term,semesterNum),calcYear(this.planDetails.year,semesterNum)))
-      }
-      else {
-        semesters.push(new Semester(semesterNum,[],calcTerm(this.planDetails.term,semesterNum),calcYear(this.planDetails.year,semesterNum)))
-      }
-    }
-    return semesters
-  }
-
-  rootsAsRequirements() {
-    return this.courseDegreeGraph.roots().map(root => this.courseDegreeGraph.fetchRequirementBy(root)!)
-  }
-
-  availableCourses(semester :number)  {
-    return this.courseDegreeGraph.availableCourses(semester)
-  }
-
-  //***********************MODIFYING STATE FUNCTIONS************************************
   /**
    * Add a course to the users schedule. Function will first validate move with underlying graph before persisting state to
    * database
@@ -84,43 +38,39 @@ export class SchedulerPageState {
    * @param semester
    */
   public addCourseToSchedule(course :Course,semester :number) {
-    this.courseDegreeGraph.addCourseToSchedule(course.id,semester)
+  this.courseDegreeGraph.addCourseToSchedule(course.id,semester)
     this.planService.addCourseToPlan(course.id,semester,this.planDetails.id)
       .subscribe(response => {})
   }
 
-  removeCourseFromSchedule(courseId :string, removalEffect :CourseRemoveBuilder) {
-    removalEffect.for(courseId)
-
-
-    const onPrereqNode = (prereq :PrerequisiteNode) => {
-
-      prereq.incomingPrereqs.forEach(prereqId => {
-        const isCompleted = this.courseDegreeGraph.isPrereqCompleted(prereqId)
-        if(isCompleted){
-          removalEffect.uncompletesPrereq(prereqId)
-        }
-      })
-    }
-
-
-    const toBeRemoved = this.courseDegreeGraph.findAllDependentCourses(courseId,onPrereqNode)
-    toBeRemoved.push(courseId)
-    const courseToBeRemoved = toBeRemoved
-      .map(courseId => this.fetchCourse(courseId)!)
-      .filter(course => course.semesterPlanned != null)
-
-    const removedCoursesEffect = courseToBeRemoved.map(course => [course.id,course.semesterPlanned!] as RemovedCourse)
-    removalEffect.removes(removedCoursesEffect)
-
-
-    return courseToBeRemoved
+  public previewCourseRemoval(courseId :string){
+    return this.courseDegreeGraph.removeCourseFromSchedule(courseId,false)
   }
 
-  unplanCourse(courseId: string,removeApproved : boolean) {
-    this.planService.removeCourse(courseId,removeApproved,this.planDetails.id)
-      .subscribe(response => {})
-    this.fetchCourse(courseId)!.semesterPlanned = null
+  public removeCourse(courseId :string){
+    const removedCourses = this.courseDegreeGraph.removeCourseFromSchedule(courseId,true)
+    removedCourses.forEach(courseId => {
+      this.planService.removeCourse(courseId,true,this.planDetails.id).subscribe(response => {})
+    })
   }
 
+  /**
+   * Retrieves the course with the id that was passed in. Assumes that the id is valid
+   * @param id
+   */
+  public courseWith(id :string){
+    return this.courseMap.get(id)!
+  }
+
+  public available(semester :number) {
+    return this.courseDegreeGraph.courseStates()
+      .filter(state => state.semesterPlanned == null && state.semesterAvailable != null && semester >= state.semesterAvailable)
+  }
+
+  public planned(){
+    return this.courseDegreeGraph.courseStates()
+      .filter(state => state.semesterPlanned != null)
+  }
+
+  //################### END OF MODIFYING FUNCTIONS ########################
 }
