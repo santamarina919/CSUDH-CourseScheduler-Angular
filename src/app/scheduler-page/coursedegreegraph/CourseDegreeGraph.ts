@@ -4,9 +4,6 @@ import {Course} from '../data-models/Course';
 import {CourseNode} from './CourseNode';
 import {PrerequisiteNode} from './PrerequisiteNode';
 import {RequirementNode} from './RequirementNode';
-import {ScheduleEffect} from '../effects/ScheduleEffect';
-import {CourseAddBuilder} from '../effects/CourseAdd';
-import {SerializedGraph} from '../degree-progress/SerializedGraph';
 import {CourseState} from './CourseState';
 import {PrereqState} from './PrereqState';
 import {ListenerOptions} from '@angular/core';
@@ -21,6 +18,7 @@ export class CourseDegreeGraph {
     private reqNodes :Map<string,RequirementNode>,
   ){
     this.setNoPrereqCoursesAvailable()
+    this.initState()
   }
 
   private setNoPrereqCoursesAvailable() {
@@ -29,6 +27,17 @@ export class CourseDegreeGraph {
         courseNode.semesterAvailable = 0
       }
     })
+  }
+
+  private initState() {
+    const courseList = Array.from(this.courseNodes.values())
+      .filter(course => course.semesterPlanned != null)
+      .sort((a,b) => a.semesterPlanned! - b.semesterPlanned!)
+
+    courseList.forEach(courseState => {
+      this.addCourseToSchedule(courseState.courseId,courseState.semesterPlanned!)
+    })
+
   }
 
   //TODO for add and removal add boolean parameter to indicate if change takes effect. Also create
@@ -64,7 +73,7 @@ export class CourseDegreeGraph {
     if(node.semesterAvailable == null){
       throw new Error('Course must have semester available something when wrong in our logic')
     }
-    if(node.semesterAvailable >= semester){
+    if(node.semesterAvailable > semester){
       throw new Error('Course must have semester available less than or equal to semester when wrong in our logic')
     }
 
@@ -78,6 +87,7 @@ export class CourseDegreeGraph {
   /**
    * Removes a course from the schedule and removed any courses that will need to be removed as a result of the current removal
    * @param courseId
+   * @param removeApproved indicate  weather this removal will actually be persisted
    */
   public removeCourseFromSchedule(courseId :string, removeApproved :boolean) :string[]{
     const affectedCourses :string[] = [courseId]
@@ -113,7 +123,7 @@ export class CourseDegreeGraph {
   }
 
   private prereqCourseCompletionTraversal(completedPrereq :PrerequisiteNode, semesterCompleted :number){
-    if(completedPrereq.parentCourse != null){
+    if(completedPrereq.parentCourse != null ){
       this.courseNodes.get(completedPrereq.parentCourse)!.semesterAvailable = semesterCompleted + 1
     }
     else{
@@ -134,7 +144,7 @@ export class CourseDegreeGraph {
       return
     }
 
-    if(prereq.parentCourse != null){
+    if(prereq.parentCourse != null && this.courseNodes.get(prereq.parentCourse)!.semesterPlanned != null){
       const courseNode = this.courseNodes.get(prereq.parentCourse)!
       affectedCourses.push(prereq.parentCourse)
       if(removeApproved){

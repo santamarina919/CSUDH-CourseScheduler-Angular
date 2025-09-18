@@ -7,13 +7,19 @@
   <div
     cdkDropList
   >
-    <h1>Available Courses for semester #{{currentSemester()}}</h1>
+    <h1>Available for {{semesterTitle(currentSemester())}}</h1>
     @for (courseState of state().available(currentSemester()); track courseState.id){
       @let course = state().courseWith(courseState.id);
-      <div
-        cdkDrag
-      >
-        <p>{{course.id}} - {{course.name}}</p>
+      <div>
+        <p
+          cdkDrag
+          (click)="state().addCourseToSchedule(course.id,currentSemester())"
+          [cdkDragData]="course.id"
+          (cdkDragStarted)="setMinimumValidSemesterDrop(courseState.semesterAvailable!)"
+          (cdkDragEnded)="resetMinimumValidSemesterDrop()"
+        >
+          {{course.id}} - {{course.name}}
+        </p>
       </div>
     }
     @empty {
@@ -28,12 +34,29 @@
     <h1>Planned Courses</h1>
     <div>
       @for (semester of semesters(); track semester.semester){
-        <div cdkDropList>
-          <h2>Semester #{{semester.semester}}</h2>
-          @for (course of semester.courses; track course){
-            <p cdkDrag> {{course}}</p>
-          }
+        <div (click)="setSemester(semester.semester)">
+          <h4 [class]="currentSemester() == semester.semester ? 'focusSemester' : ''">{{ semesterTitle(semester.semester) }}</h4>
+          <div
+            cdkDropList
+            (cdkDropListEntered)="setDragOverSemesterSignal(semester.semester)"
+            (cdkDropListExited)="setDragOverSemesterSignal(0)"
+            (cdkDropListDropped)="addCourse($event)"
+            [hidden]="semester.semester <  minimumValidSemesterDrop()"
+          >
+            @for (course of semester.courses; track course[COURSE_ID]) {
+              <p
+                cdkDrag
+                cdkDragDisabled
+                (click)="openRemovePreview(course[COURSE_ID])"
+              > {{course[COURSE_ID]}}-{{course[COURSE_NAME]}}</p>
+            } @empty {
+              <p [hidden]="isDraggingOverSemester(semester.semester)">No courses planned</p>
+            }
+          </div>
+
+          <p [hidden]="semester.semester >= minimumValidSemesterDrop()">You cannot add this course to this semester</p>
         </div>
+
       }
     </div>
     <button matButton mat-raised-button (click)="incrementSemester()">Add Semester</button>

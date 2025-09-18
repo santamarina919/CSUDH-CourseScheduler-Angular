@@ -1,20 +1,16 @@
 import {CourseDegreeGraph} from './coursedegreegraph/CourseDegreeGraph';
 import {FullPlanDetails} from './data-models/FullPlanDetails';
 import {Course} from './data-models/Course';
-import {Semester} from './data-models/Semester';
+import {Semester} from './planning-container/Semester';
 import {calcTerm} from '../utils/CalcTermFromSemester';
 import {calcYear} from '../utils/CalcYearFromSemester';
-import {ScheduleEffect} from './effects/ScheduleEffect';
 import {PrerequisiteNode} from './coursedegreegraph/PrerequisiteNode';
-import {CourseRemoveBuilder, RemovedCourse} from './effects/CourseRemove';
 import {inject} from '@angular/core';
 import {DegreeService} from '../service/degree.service';
 import {PlanService} from '../service/plan.service';
-import {SerializedGraph} from './degree-progress/SerializedGraph';
 
 
 export class SchedulerPageState {
-  public effects :ScheduleEffect[] = []
 
   private courseMap = new Map<string,Course>()
 
@@ -34,12 +30,12 @@ export class SchedulerPageState {
   /**
    * Add a course to the users schedule. Function will first validate move with underlying graph before persisting state to
    * database
-   * @param course
+   * @param courseId
    * @param semester
    */
-  public addCourseToSchedule(course :Course,semester :number) {
-  this.courseDegreeGraph.addCourseToSchedule(course.id,semester)
-    this.planService.addCourseToPlan(course.id,semester,this.planDetails.id)
+  public addCourseToSchedule(courseId :string,semester :number) {
+  this.courseDegreeGraph.addCourseToSchedule(courseId,semester)
+    this.planService.addCourseToPlan(courseId,semester,this.planDetails.id)
       .subscribe(response => {})
   }
 
@@ -62,9 +58,15 @@ export class SchedulerPageState {
     return this.courseMap.get(id)!
   }
 
-  public available(semester :number) {
+  public courseStates(){
     return this.courseDegreeGraph.courseStates()
+  }
+
+  public available(semester :number) {
+    const avail =  this.courseDegreeGraph.courseStates()
       .filter(state => state.semesterPlanned == null && state.semesterAvailable != null && semester >= state.semesterAvailable)
+    console.log(avail)
+    return avail
   }
 
   public planned(){

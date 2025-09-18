@@ -7,17 +7,7 @@ import {forkJoin, Observable} from 'rxjs';
 import {DegreeService} from '../service/degree.service';
 import {PlanService} from '../service/plan.service';
 import {CourseDegreeGraphBuilder} from './coursedegreegraph/CourseDegreeGraphBuilder';
-import {CourseDegreeGraph} from './coursedegreegraph/CourseDegreeGraph';
-import {MatButton, MatIconButton} from '@angular/material/button';
-import {
-  MatList,
-  MatListItem,
-  MatListItemLine,
-  MatListItemTitle,
-  MatListOption,
-  MatSelectionList
-} from '@angular/material/list';
-import {SummaryNode} from './summary-node/summary-node';
+
 import {Course} from './data-models/Course';
 import {Requirement} from './data-models/Requirement';
 import {Prerequisite} from './data-models/Prerequisite';
@@ -25,21 +15,10 @@ import {PlannedCourse} from './data-models/PlannedCourse';
 import {FullPlanDetails} from './data-models/FullPlanDetails';
 import {calcTerm} from '../utils/CalcTermFromSemester';
 import {calcYear} from '../utils/CalcYearFromSemester';
-import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup} from '@angular/cdk/drag-drop';
-import {CurrencyPipe, NgClass} from '@angular/common';
-import {CdkScrollable} from '@angular/cdk/overlay';
-import {
-  MatExpansionPanel,
-  MatExpansionPanelTitle,
-  MatExpansionPanelHeader,
-  MatAccordion, MatExpansionPanelDescription
-} from '@angular/material/expansion';
+
 import {MatDialog} from '@angular/material/dialog';
 import {RemoveDialog} from './remove-dialog/remove-dialog';
-import {CourseRemoveBuilder} from './effects/CourseRemove';
 import {MatIcon} from '@angular/material/icon';
-import {SerializedRequirementPanel} from './serialized-requirement-panel/serialized-requirement-panel';
-import {SerializedRequirement} from './degree-progress/SerializedRequirement';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {PlanningContainer} from './planning-container/planning-container';
 
@@ -49,9 +28,7 @@ const START_SEMESTER = 1
 @Component({
   selector: 'app-schedule-page',
   imports: [
-    MatExpansionPanel,
-    MatExpansionPanelTitle,
-    MatExpansionPanelHeader,
+
     PlanningContainer,
   ],
   templateUrl: './scheduler-page.html',

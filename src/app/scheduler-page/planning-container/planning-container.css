@@ -1,0 +1,10 @@
+.planningSection {
+  display: flex;
+}
+
+
+.focusSemester {
+  background: linear-gradient(to right,#5fb537, #1ccaca);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

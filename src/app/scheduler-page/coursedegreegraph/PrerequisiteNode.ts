@@ -34,13 +34,13 @@ export abstract class PrerequisiteNode {
 export class AndPrerequisiteNode extends PrerequisiteNode{
 
   public isCompleted() {
-    return this.completedChildPrereqs.size + this.completedCourses.size == this.completedCourses.size + this.outgoingCourses.length
+    return this.completedChildPrereqs.size + this.completedCourses.size == this.outgoingPrereqs.length + this.outgoingCourses.length
   }
 
   public notifyOfCompletedCourse(courseId :string, semester :number){
+    console.log(`${courseId} was added to semster ${semester}`)
     if(this.completedCourses.has(courseId)) throw new Error(`${courseId} was already present in completed courses set for AND prereq node ${this.prerequisiteId}`)
     this.completedCourses.add(courseId)
-
     this.updateSemesterCompleted(semester)
     return this.isCompleted()
   }

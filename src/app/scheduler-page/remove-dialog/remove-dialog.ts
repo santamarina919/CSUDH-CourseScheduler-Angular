@@ -32,16 +32,15 @@ import {MatButton} from '@angular/material/button';
 })
 export class RemoveDialog {
 
-  displayedColumns = ['id','name','semesterAvailable'];
+  displayedColumns = ['id','name'/**,'semesterAvailable'**/];
 
   toBeRemoved :Course[] = []
 
   onRemoveClick :() => void
 
   constructor(@Inject(MAT_DIALOG_DATA) public data : {toBeRemoved: Course[], onRemoveClick : () => void}, public dialogRef: MatDialogRef<RemoveDialog>) {
-    this.toBeRemoved = data.toBeRemoved;
+    this.toBeRemoved = data.toBeRemoved
     this.onRemoveClick = data.onRemoveClick;
-    console.log(this.toBeRemoved.length);
   }
 
   protected readonly Number = Number;
