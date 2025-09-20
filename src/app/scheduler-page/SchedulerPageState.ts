@@ -65,7 +65,6 @@ export class SchedulerPageState {
   public available(semester :number) {
     const avail =  this.courseDegreeGraph.courseStates()
       .filter(state => state.semesterPlanned == null && state.semesterAvailable != null && semester >= state.semesterAvailable)
-    console.log(avail)
     return avail
   }
 

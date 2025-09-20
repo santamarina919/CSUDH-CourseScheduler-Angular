@@ -106,7 +106,10 @@ export class PlanningContainer{
 
   setDragOverSemesterSignal(semester: number) {
     this.currentDragOverSemester.set(semester)
-    console.log(`dragging over semester ${semester}`)
+  }
+
+  resetDragOverSemesterSignal() {
+    this.currentDragOverSemester.set(0)
   }
 
   isDraggingOverSemester(semester :number){
@@ -120,6 +123,7 @@ export class PlanningContainer{
     const courseId = $event.item.data as string
     this.state().addCourseToSchedule(courseId,this.currentSemester())
     this.setMinimumValidSemesterDrop(0)
+    this.resetDragOverSemesterSignal()
   }
 
   setMinimumValidSemesterDrop(semester: number) {

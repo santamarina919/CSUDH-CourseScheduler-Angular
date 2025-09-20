@@ -39,18 +39,19 @@
           <div
             cdkDropList
             (cdkDropListEntered)="setDragOverSemesterSignal(semester.semester)"
-            (cdkDropListExited)="setDragOverSemesterSignal(0)"
+            (cdkDropListExited)="resetDragOverSemesterSignal()"
             (cdkDropListDropped)="addCourse($event)"
             [hidden]="semester.semester <  minimumValidSemesterDrop()"
           >
             @for (course of semester.courses; track course[COURSE_ID]) {
               <p
-                cdkDrag
-                cdkDragDisabled
                 (click)="openRemovePreview(course[COURSE_ID])"
               > {{course[COURSE_ID]}}-{{course[COURSE_NAME]}}</p>
             } @empty {
-              <p [hidden]="isDraggingOverSemester(semester.semester)">No courses planned</p>
+              <p
+                [hidden]="isDraggingOverSemester(semester.semester)">
+                No courses planned
+              </p>
             }
           </div>
 
