@@ -19,6 +19,9 @@ import {CdkNoDataRow} from '@angular/cdk/table';
 import {MatDialog} from '@angular/material/dialog';
 import {RemoveDialog} from '../remove-dialog/remove-dialog';
 import {sampleTime} from 'rxjs';
+import {Effect} from './effects/effect';
+import {CourseAdd} from './effects/course-add';
+import {CourseRemove} from './effects/course-remove';
 
 @Component({
   selector: 'app-planning-container',
@@ -54,6 +57,8 @@ export class PlanningContainer{
   minimumValidSemesterDrop = signal(0)
 
   removeDialog = inject(MatDialog)
+
+  effects :Effect[] = []
 
   semesters(){
     const groupedCourses = this.coursesGroupedBySemester()
@@ -124,6 +129,7 @@ export class PlanningContainer{
     this.state().addCourseToSchedule(courseId,this.currentSemester())
     this.setMinimumValidSemesterDrop(0)
     this.resetDragOverSemesterSignal()
+    this.effects.push(new CourseAdd(courseId))
   }
 
   setMinimumValidSemesterDrop(semester: number) {
@@ -137,12 +143,18 @@ export class PlanningContainer{
   openRemovePreview(withCourseId :string){
     const toBeRemoved = this.state().previewCourseRemoval(withCourseId)
       .map(courseId => this.state().courseWith(courseId))
+    const removeFunc = () => {
+      this.state().removeCourse(withCourseId)
+      this.effects.push(new CourseRemove(withCourseId))
+    }
     this.removeDialog.open(RemoveDialog, {
         data : {
-          toBeRemoved : toBeRemoved, onRemoveClick : () => {this.state().removeCourse(withCourseId)}
+          toBeRemoved : toBeRemoved, onRemoveClick : removeFunc
         }
       })
   }
+
+
 
   protected readonly COURSE_ID = COURSE_ID;
   protected readonly COURSE_NAME = COURSE_NAME;

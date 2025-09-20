@@ -16,3 +16,21 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+
+.effectItem {
+  display: flex;
+  flex-direction: row;
+}
+
+.effectItem > p:first-child {
+  margin-right: 5px;
+}
+
+.positiveColor {
+  color: green;
+}
+
+.negativeColor {
+  color: red;
+}
