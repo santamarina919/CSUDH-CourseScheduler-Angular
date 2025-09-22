@@ -1,4 +1,4 @@
-import {Component, computed, inject, input, signal} from '@angular/core';
+import {Component, computed, inject, input, OnInit, signal} from '@angular/core';
 import {SchedulerPageState} from '../SchedulerPageState';
 import {
   CdkDrag,
@@ -22,6 +22,14 @@ import {sampleTime} from 'rxjs';
 import {Effect} from './effects/effect';
 import {CourseAdd} from './effects/course-add';
 import {CourseRemove} from './effects/course-remove';
+import {StartState} from './effects/start-state';
+import {AffectedCourseState} from './effects/affected-course-state';
+import {
+  MatAccordion,
+  MatExpansionPanel,
+  MatExpansionPanelHeader,
+  MatExpansionPanelTitle
+} from '@angular/material/expansion';
 
 @Component({
   selector: 'app-planning-container',
@@ -30,14 +38,17 @@ import {CourseRemove} from './effects/course-remove';
     CdkDrag,
     CdkDropList,
     MatButton,
+    MatAccordion,
+    MatExpansionPanel,
+    MatExpansionPanelHeader,
+    MatExpansionPanelTitle,
   ],
   templateUrl: './planning-container.html',
   styleUrl: './planning-container.css'
 })
-export class PlanningContainer{
-
-
+export class PlanningContainer implements OnInit{
   state = input.required<SchedulerPageState>()
+
 
   planDetails = input.required<FullPlanDetails>()
 
@@ -59,6 +70,11 @@ export class PlanningContainer{
   removeDialog = inject(MatDialog)
 
   effects :Effect[] = []
+
+  ngOnInit(): void {
+    const states :AffectedCourseState[] = this.state().courseStates()
+    this.effects.push(new StartState(states))
+  }
 
   semesters(){
     const groupedCourses = this.coursesGroupedBySemester()
@@ -126,13 +142,16 @@ export class PlanningContainer{
       return
     }
     const courseId = $event.item.data as string
-    this.state().addCourseToSchedule(courseId,this.currentSemester())
+    const previousState = this.state().courseStates()
+    this.state().addCourseToSchedule(courseId,this.currentDragOverSemester() != 0 ? this.currentDragOverSemester() :  this.currentSemester())
+    const currentState = this.state().courseStates()
     this.setMinimumValidSemesterDrop(0)
     this.resetDragOverSemesterSignal()
-    this.effects.push(new CourseAdd(courseId))
+    this.effects.push(new CourseAdd(courseId,previousState,currentState))
   }
 
   setMinimumValidSemesterDrop(semester: number) {
+    console.log("Setting minimum valid semester drop to " + semester)
     this.minimumValidSemesterDrop.set(semester)
   }
 
@@ -144,14 +163,20 @@ export class PlanningContainer{
     const toBeRemoved = this.state().previewCourseRemoval(withCourseId)
       .map(courseId => this.state().courseWith(courseId))
     const removeFunc = () => {
+      const prevStates = this.state().courseStates()
       this.state().removeCourse(withCourseId)
-      this.effects.push(new CourseRemove(withCourseId))
+      const currentStates = this.state().courseStates()
+      this.effects.push(new CourseRemove(withCourseId,prevStates,currentStates))
     }
     this.removeDialog.open(RemoveDialog, {
         data : {
           toBeRemoved : toBeRemoved, onRemoveClick : removeFunc
         }
       })
+  }
+
+
+  isValidDropPredicate(cdkDrag: CdkDrag<string>) {
   }
 
 

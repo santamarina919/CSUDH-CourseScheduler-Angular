@@ -38,11 +38,10 @@
         <div (click)="setSemester(semester.semester)">
           <h4 [class]="currentSemester() == semester.semester ? 'focusSemester' : ''">{{ semesterTitle(semester.semester) }}</h4>
           <div
+            class="semester"
             cdkDropList
             (cdkDropListEntered)="setDragOverSemesterSignal(semester.semester)"
-            (cdkDropListExited)="resetDragOverSemesterSignal()"
             (cdkDropListDropped)="addCourse($event)"
-            [hidden]="semester.semester <  minimumValidSemesterDrop()"
           >
             @for (course of semester.courses; track course[COURSE_ID]) {
               <p
@@ -66,14 +65,44 @@
 
   <div>
     <h1>Effects</h1>
-    <div>
+    <mat-accordion>
       @for (effect of effects; track effect.id) {
-        <div class="effectItem">
-          <p [class]="effect.verbClass()">{{ effect.verb() }}</p>
-          <p>{{ effect.subject() }}</p>
-        </div>
+        <mat-expansion-panel >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <div class="effectTitle">
+                <p [class]="effect.verbClass()">{{ effect.verb() }}</p>
+                <p>{{ effect.subject() }}</p>
+              </div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          @if($first) {
+            @for (state of effect.currentCourseStates(); track state.id) {
+              @if(state.semesterAvailable == null){
+                <p>{{state.id}} not available</p>
+              } @else {
+                <p>{{state.id}} available starting at Semester #{{state.semesterAvailable}}</p>
+              }
+
+              @if(state.semesterPlanned == null){
+                <p>{{state.id}} not planned</p>
+              }
+              @else{
+                <p>{{state.id}} planned for Semester #{{state.semesterPlanned}}</p>
+              }
+            }
+          } @else {
+            @for(state of effect.currentCourseStates(); track state.id) {
+              <p>{{state.id}}</p>
+              <p>Available -> {{ state.semesterAvailable == null ? 'Not Available' : `@ semester#${state.semesterAvailable}` }}</p>
+              <p>Planned -> {{state.semesterPlanned == null ? 'Not Planned' : `@ semester#${state.semesterPlanned}`}}</p>
+            }
+          }
+
+        </mat-expansion-panel>
       }
-    </div>
+    </mat-accordion>
   </div>
 
 </div>

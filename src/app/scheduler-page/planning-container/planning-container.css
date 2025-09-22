@@ -34,3 +34,23 @@
 .negativeColor {
   color: red;
 }
+
+.base {
+  color : gray;
+}
+
+.semester {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border : 1px solid white;
+}
+
+
+.effectTitle {
+  display: flex;
+  flex-direction: row;
+}
+
+.effectTitle > p:first-child {
+  margin-right: 5px;
+}

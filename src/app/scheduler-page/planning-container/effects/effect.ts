@@ -1,8 +1,9 @@
+import {AffectedCourseState} from './affected-course-state';
 
 
 export abstract class Effect {
 
-  private courseStates = []
+  protected courseStates :AffectedCourseState[] = []
 
   private prerequisiteStates = []
 
@@ -16,10 +17,24 @@ export abstract class Effect {
     return this.effectId;
   }
 
-  abstract verbClass() :string;
+  public abstract verbClass() :string;
 
-  abstract verb() :string;
+  public abstract verb() :string;
 
-  abstract subject() :string;
+  public abstract subject() :string;
+
+  public currentCourseStates() {
+    return this.courseStates;
+  }
+
+  protected stateDifference(previous :AffectedCourseState[], current :AffectedCourseState[]) {
+    const previousState = new Map<string, AffectedCourseState>(previous.map(course => [course.id, course]));
+
+    return  current.filter(
+      currState =>
+      previousState.get(currState.id)!.semesterPlanned !== currState.semesterPlanned ||
+      previousState.get(currState.id)!.semesterAvailable !== currState.semesterAvailable
+    )
+  }
 
 }
