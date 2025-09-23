@@ -76,5 +76,5 @@ export class SchedulerPageState {
       .filter(state => state.semesterPlanned != null)
   }
 
-  //################### END OF MODIFYING FUNCTIONS ########################
+  //################### END OF EXPOSED FUNCTIONS ########################
 }
