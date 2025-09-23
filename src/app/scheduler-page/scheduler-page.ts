@@ -21,6 +21,7 @@ import {RemoveDialog} from './remove-dialog/remove-dialog';
 import {MatIcon} from '@angular/material/icon';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {PlanningContainer} from './planning-container/planning-container';
+import {SummaryContainer} from './summary-container/summary-container';
 
 
 const START_SEMESTER = 1
@@ -30,6 +31,7 @@ const START_SEMESTER = 1
   imports: [
 
     PlanningContainer,
+    SummaryContainer,
   ],
   templateUrl: './scheduler-page.html',
   styleUrl: './scheduler-page.css'
