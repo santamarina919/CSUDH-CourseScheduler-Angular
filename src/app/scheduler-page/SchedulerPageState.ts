@@ -34,20 +34,23 @@ export class SchedulerPageState {
    * @param semester
    */
   public addCourseToSchedule(courseId :string,semester :number) {
-  this.courseDegreeGraph.addCourseToSchedule(courseId,semester)
+    this.courseDegreeGraph.addCourseToSchedule(courseId,semester)
     this.planService.addCourseToPlan(courseId,semester,this.planDetails.id)
       .subscribe(response => {})
+    console.log("After add",this.courseDegreeGraph.courseStates())
   }
 
   public previewCourseRemoval(courseId :string){
-    return this.courseDegreeGraph.removeCourseFromSchedule(courseId,false)
+    return this.courseDegreeGraph.removeCourseFromSchedule(courseId,false,[])
   }
 
   public removeCourse(courseId :string){
-    const removedCourses = this.courseDegreeGraph.removeCourseFromSchedule(courseId,true)
+    const removedCourses = this.courseDegreeGraph.removeCourseFromSchedule(courseId,true,[])
+    console.log("calling api with these values ",removedCourses)
     removedCourses.forEach(courseId => {
       this.planService.removeCourse(courseId,true,this.planDetails.id).subscribe(response => {})
     })
+    console.log("After remove",this.courseDegreeGraph.courseStates())
   }
 
   /**

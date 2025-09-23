@@ -88,9 +88,10 @@ export class CourseDegreeGraph {
    * Removes a course from the schedule and removed any courses that will need to be removed as a result of the current removal
    * @param courseId
    * @param removeApproved indicate  weather this removal will actually be persisted
+   * @param affectedCourses
    */
-  public removeCourseFromSchedule(courseId :string, removeApproved :boolean) :string[]{
-    const affectedCourses :string[] = [courseId]
+  public removeCourseFromSchedule(courseId :string, removeApproved :boolean,affectedCourses :string[]) :string[]{
+    affectedCourses.push(courseId)
     const courseNode = this.courseNodes.get(courseId)!
     if(courseNode.semesterPlanned == null){
       throw Error("Cannot remove a course that has not been planned. Faulty logic caught in remove course graph method")
@@ -104,6 +105,9 @@ export class CourseDegreeGraph {
     courseNode.incomingPreqreqs.forEach(prereqId => {
       const prereqNode = this.prereqNodes.get(prereqId)!
       this.prereqCourseRemovalTraversal(prereqNode,removeApproved,affectedCourses)
+      if(removeApproved){
+        prereqNode.notifyOfRemovedCourse(courseId)
+      }
 
     })
     return affectedCourses
@@ -144,9 +148,13 @@ export class CourseDegreeGraph {
       return
     }
 
-    if(prereq.parentCourse != null && this.courseNodes.get(prereq.parentCourse)!.semesterPlanned != null){
+    prereq.semesterCompleted = null
+
+    if(prereq.parentCourse != null){
       const courseNode = this.courseNodes.get(prereq.parentCourse)!
-      affectedCourses.push(prereq.parentCourse)
+      if(courseNode.semesterPlanned != null) {
+        this.removeCourseFromSchedule(courseNode.courseId, removeApproved, affectedCourses)
+      }
       if(removeApproved){
         courseNode.semesterPlanned = null
         courseNode.semesterAvailable = null

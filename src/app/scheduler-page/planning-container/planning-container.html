@@ -14,7 +14,7 @@
       <div class="courseList">
         <p
           cdkDrag
-          (click)="state().addCourseToSchedule(course.id,currentSemester())"
+          (click)="addCourse(null,course.id)"
           [cdkDragData]="course.id"
           (cdkDragStarted)="setMinimumValidSemesterDrop(courseState.semesterAvailable!)"
           (cdkDragEnded)="resetMinimumValidSemesterDrop()"
@@ -41,7 +41,7 @@
             class="semester"
             cdkDropList
             (cdkDropListEntered)="setDragOverSemesterSignal(semester.semester)"
-            (cdkDropListDropped)="addCourse($event)"
+            (cdkDropListDropped)="addCourse($event,null)"
           >
             @for (course of semester.courses; track course[COURSE_ID]) {
               <p

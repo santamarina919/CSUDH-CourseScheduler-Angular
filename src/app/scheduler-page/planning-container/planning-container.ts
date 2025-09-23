@@ -61,7 +61,7 @@ export class PlanningContainer implements OnInit{
 
   currentSemester = signal<number>(this.FIRST_SEMESTER)
 
-  biggestSemester = signal(this.DEFAULT_BIGGEST_SEMESTER)
+  biggestSemester = this.DEFAULT_BIGGEST_SEMESTER
 
   currentDragOverSemester = signal(0)
 
@@ -79,7 +79,7 @@ export class PlanningContainer implements OnInit{
   semesters(){
     const groupedCourses = this.coursesGroupedBySemester()
     const semesters :Semester[] = []
-    for(let i = 1; i <= this.biggestSemester(); i++){
+    for(let i = 1; i <= this.biggestSemester; i++){
       semesters.push(new Semester(i,groupedCourses.get(i) ?? []))
     }
     return semesters
@@ -104,15 +104,15 @@ export class PlanningContainer implements OnInit{
       courseList.push([courseDetails.id,courseDetails.name])
     })
 
-    if(largestPlannedSemester > this.biggestSemester()){
-      this.biggestSemester.set(largestPlannedSemester)
+    if(largestPlannedSemester > this.biggestSemester){
+      this.biggestSemester = largestPlannedSemester
     }
     return groupedCourses
   }
 
 
   incrementSemester() {
-    this.biggestSemester.update((curr) => curr + 1)
+    this.biggestSemester = this.biggestSemester + 1
   }
 
   semesterTitle(semesterNumber :number){
@@ -137,11 +137,20 @@ export class PlanningContainer implements OnInit{
     return this.currentDragOverSemester() == semester
   }
 
-  addCourse($event: CdkDragDrop<string>) {
-    if($event.container == $event.previousContainer){
+  addCourse($event: CdkDragDrop<string> | null, clickedCourse :string | null) {
+    let courseId :string | null = null
+
+
+    if($event != null && $event.container == $event.previousContainer){
       return
     }
-    const courseId = $event.item.data as string
+    if($event != null) {
+      courseId = $event.item.data as string
+    }
+    else {
+      courseId = clickedCourse!
+    }
+
     const previousState = this.state().courseStates()
     this.state().addCourseToSchedule(courseId,this.currentDragOverSemester() != 0 ? this.currentDragOverSemester() :  this.currentSemester())
     const currentState = this.state().courseStates()
