@@ -1,3 +1,16 @@
-<div>
+<div class="summarySection">
   <h1>Summary</h1>
+
+  @for(root of roots(); track root) {
+    @let rootObj = requirementsMap().get(root)!;
+    <app-requirement-summary
+      [requirement]="rootObj"
+      [courseMap]="coursesMap()"
+      [prerequisitesMap]="prerequisitesMap()"
+      [requirementsMap]="requirementsMap()"
+    >
+
+    </app-requirement-summary>
+  }
+
 </div>

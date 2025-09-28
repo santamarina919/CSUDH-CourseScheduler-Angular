@@ -10,6 +10,13 @@
   border: 1px solid white;
 }
 
+.planningSection > div:first-child {
+  border-right: 0;
+}
+.planningSection > div:last-child {
+  border-left: 0;
+}
+
 
 .focusSemester {
   background: linear-gradient(to right,#5fb537, #1ccaca);
@@ -43,6 +50,8 @@
   padding-top: 2px;
   padding-bottom: 2px;
   border : 1px solid white;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 
@@ -53,4 +62,53 @@
 
 .effectTitle > p:first-child {
   margin-right: 5px;
+}
+
+.semesterContainer {
+  max-height: 50vh;
+  overflow-y: scroll;
+  padding-left: 5px;
+  padding-right: 5px;
+  scrollbar-width: thin;
+  width: 100% ;
+}
+
+.plannedContainer {
+  width: 100%;
+}
+
+.buttonPadding {
+  height: 100%;
+}
+
+.effectContent {
+  max-height: 25vh;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+.availableCourses {
+  height: 100%;
+}
+
+.addCourseButton {
+  justify-self: flex-end;
+}
+
+.focusCourse {
+  background: linear-gradient(to right, #9f75df, #e41666);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+mat-accordion {
+  height: 100%;
+  max-height: 100%;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+}
+
+.questionIcon {
+  color: red;
 }

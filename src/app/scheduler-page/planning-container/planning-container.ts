@@ -10,7 +10,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import {COURSE_ID, COURSE_NAME, Semester} from './Semester';
 import {Course} from '../data-models/Course';
-import {MatButton} from '@angular/material/button';
+import {MatButton, MatIconButton} from '@angular/material/button';
 import {PlanDetails} from '../../plans-page/PlanDetails';
 import {FullPlanDetails} from '../data-models/FullPlanDetails';
 import {calcTerm} from '../../utils/CalcTermFromSemester';
@@ -30,6 +30,9 @@ import {
   MatExpansionPanelHeader,
   MatExpansionPanelTitle
 } from '@angular/material/expansion';
+import {MatIcon, MatIconRegistry} from '@angular/material/icon';
+import {DomSanitizer} from '@angular/platform-browser';
+import {NgOptimizedImage} from '@angular/common';
 
 @Component({
   selector: 'app-planning-container',
@@ -52,6 +55,11 @@ export class PlanningContainer implements OnInit{
 
   planDetails = input.required<FullPlanDetails>()
 
+  private matIconRegistry = inject(MatIconRegistry)
+
+  private domSanitizer = inject(DomSanitizer)
+
+
   /**
    * This is the first semester users can actually add classes to
    */
@@ -61,11 +69,15 @@ export class PlanningContainer implements OnInit{
 
   currentSemester = signal<number>(this.FIRST_SEMESTER)
 
+  clickedCourse = signal<string | null>(null)
+
   biggestSemester = this.DEFAULT_BIGGEST_SEMESTER
 
   currentDragOverSemester = signal(0)
 
   minimumValidSemesterDrop = signal(0)
+
+  undoEffect = signal<number| null>(null)
 
   removeDialog = inject(MatDialog)
 
@@ -123,6 +135,7 @@ export class PlanningContainer implements OnInit{
 
   setSemester(semester :number){
     this.currentSemester.set(semester)
+    this.clickedCourse.set(null)
   }
 
   setDragOverSemesterSignal(semester: number) {
@@ -175,7 +188,7 @@ export class PlanningContainer implements OnInit{
       const prevStates = this.state().courseStates()
       this.state().removeCourse(withCourseId)
       const currentStates = this.state().courseStates()
-      this.effects.push(new CourseRemove(withCourseId,prevStates,currentStates))
+      this.effects.push(new CourseRemove(withCourseId,prevStates,currentStates,this.currentSemester()))
     }
     this.removeDialog.open(RemoveDialog, {
         data : {
@@ -188,8 +201,55 @@ export class PlanningContainer implements OnInit{
   isValidDropPredicate(cdkDrag: CdkDrag<string>) {
   }
 
+  setUndoEffectSignal($index: number) {
+    console.log("Setting undo effect to " + $index + " undo effect is " + this.undoEffect() + "")
+    if($index == 0){
+      return
+    }
+    else if($index == this.undoEffect()){
+      this.undoEffect.set(null)
+      return
+    }
+    this.undoEffect.set($index)
+  }
+
+  revertState() {
+    if(this.undoEffect() == null){
+      return
+    }
+
+    //know that this function will never be called on a length of 1 and thus wont go out of bounds
+    let nextStateIndex = this.effects.length - 1
+
+    while(nextStateIndex >= this.undoEffect()! && nextStateIndex > 0){
+      const nextState = this.effects[nextStateIndex]
+      if(nextState instanceof CourseAdd){
+        const courseId = nextState.subject()
+        this.state().removeCourse(courseId)
+      }
+      else if(nextState instanceof CourseRemove){
+        const courseId = nextState.subject()
+        const previousPlannedSemester = nextState.previousPlannedSemester()
+        this.state().addCourseToSchedule(courseId,previousPlannedSemester)
+      }
+      else {
+        throw new Error("Did not plan for this type of effect: " + nextState.constructor.name + "")
+      }
+
+      nextStateIndex = nextStateIndex - 1
+    }
+
+    this.effects = this.effects.slice(0,this.undoEffect()!)
 
 
+
+  }
+
+  addCourseAndResetAddCourseButton(){
+    this.addCourse(null,this.clickedCourse())
+    this.clickedCourse.set(null)
+  }
   protected readonly COURSE_ID = COURSE_ID;
+
   protected readonly COURSE_NAME = COURSE_NAME;
 }

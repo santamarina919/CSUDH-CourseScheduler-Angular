@@ -1,0 +1,46 @@
+<div class="requirementSummary">
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <p>{{requirementTitle()}}</p>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    @if(requirement().leafCourses.length > 0){
+      <p>Required Courses</p>
+    }
+    @for(course of requirement().leafCourses;track course){
+      @let courseObj = courseMap().get(course)!;
+      <app-course-summary
+        [course]="courseObj"
+        [courseMap]="courseMap()"
+        [prerequisitesMap]="prerequisitesMap()"
+      >
+
+      </app-course-summary>
+    }@empty{
+      <p>This requirement has no required courses</p>
+    }
+
+    @if (requirement().childRequirements.length > 0 ) {
+      <p>Child Requirements</p>
+    }
+    @for (child of requirement().childRequirements; track child) {
+      @let childObj = requirementsMap().get(child)!;
+      <app-requirement-summary
+        [requirement]="childObj"
+        [courseMap]="courseMap()"
+        [prerequisitesMap]="prerequisitesMap()"
+        [requirementsMap]="requirementsMap()"
+      >
+      </app-requirement-summary>
+    }
+    @empty {
+      <p>This requirement has no child requirements</p>
+    }
+
+
+  </mat-expansion-panel>
+</mat-accordion>
+</div>

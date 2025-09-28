@@ -1,0 +1,27 @@
+
+
+<div>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <p>{{courseTitle()}}</p>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    @let prereq = myPrerequisite();
+    @if (prereq == undefined) {
+      <p>This course has no prerequisites</p>
+    }
+    @else {
+      <app-prerequisite-summary
+        [prerequisite]="prereq"
+        [prerequisiteMap]="prerequisitesMap()"
+        [coursesMap]="courseMap()"
+      >
+
+      </app-prerequisite-summary>
+    }
+
+
+  </mat-expansion-panel>
+</div>

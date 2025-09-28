@@ -3,10 +3,12 @@ import {AffectedCourseState} from './affected-course-state';
 
 export class CourseRemove extends Effect {
   private removedCourse: string;
-  constructor(courseId: string, previousState: AffectedCourseState[], currentState: AffectedCourseState[]) {
+  private previousSemester :number
+  constructor(courseId: string, previousState: AffectedCourseState[], currentState: AffectedCourseState[], previousSemester :number) {
     super()
     this.removedCourse = courseId;
     this.courseStates = this.stateDifference(previousState, currentState);
+    this.previousSemester = previousSemester;
   }
 
   verb(): string {
@@ -14,12 +16,17 @@ export class CourseRemove extends Effect {
   }
 
   subject(): string {
-    return this.removedCourse.toUpperCase();
+    return this.removedCourse
   }
 
   override verbClass(): string {
     return "negativeColor"
   }
+
+  public previousPlannedSemester() {
+    return this.previousSemester;
+  }
+
 
 
 }

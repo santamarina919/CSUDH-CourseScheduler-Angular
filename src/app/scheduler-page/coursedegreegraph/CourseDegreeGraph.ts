@@ -113,6 +113,8 @@ export class CourseDegreeGraph {
     return affectedCourses
   }
 
+
+
   //######## END OF EXPOSED METHODS #################################################
 
   private courseCompletionTraversal(courseId :string, semesterCompleted :number){

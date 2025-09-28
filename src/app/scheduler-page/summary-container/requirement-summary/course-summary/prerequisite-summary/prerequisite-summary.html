@@ -1,0 +1,29 @@
+
+
+<div>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <p>{{prereqTitle()}}</p>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    @for (course of prerequisite().leafCourses; track course) {
+      @let courseObj = coursesMap().get(course)!;
+      <h1>{{courseObj.id}} {{courseObj.name}} {{courseObj.units}} units</h1>
+    }
+
+    @for (child of prerequisite().childrenPrereqs; track child) {
+      @let childObj = prerequisiteMap().get(child)!;
+      <app-prerequisite-summary
+        [prerequisite]="childObj"
+        [prerequisiteMap]="prerequisiteMap()"
+        [coursesMap]="coursesMap()"
+      >
+      </app-prerequisite-summary>
+    }
+
+
+
+  </mat-expansion-panel>
+</div>

@@ -44,10 +44,6 @@ export class SchedulerPage {
 
   planService = inject(PlanService)
 
-  removeDialog = inject(MatDialog)
-
-  snackbar = inject(MatSnackBar)
-
   state: SchedulerPageState | null = null;
 
   planDetails = signal<FullPlanDetails>(new FullPlanDetails("DummyId","My Computer Science Degree","Fall",2019,"CSC"))
@@ -58,15 +54,13 @@ export class SchedulerPage {
 
   semesterDrop = signal<number>(START_SEMESTER)
 
-  invalidSemesterDrops = signal<number>(0)
+  roots = signal<string[]>([])
 
-  semesterTerm = computed(() => {
-    return calcTerm(this.planDetails().term,this.semesterNumber())
-  })
-  semesterYear = computed(() => {
-    return calcYear(this.planDetails().year,this.semesterNumber())
-  })
+  courses = signal<Course[]>([])
 
+  requirements = signal<Requirement[]>([])
+
+  prerequisites = signal<Prerequisite[]>([])
 
   constructor() {
     const planId = this.activatedRoute.snapshot.paramMap.get(RouteParameters.planId) ?? "Missing plan id"
@@ -86,6 +80,8 @@ export class SchedulerPage {
     const planDetailsObservable$ = this.planService.planDetails(planId)
 
     const jobs  = [coursesObservable$, requirementObservable$, prerequisiteObservable$, plannedObservable$,rootsObservable$,planDetailsObservable$]
+
+
 
     const JOB_INDEXES = {
       COURSES : 0,
@@ -109,6 +105,10 @@ export class SchedulerPage {
 
       this.state = new SchedulerPageState(courseDegreeGraph,planDetails,this.planService,courses)
       this.isLoading.set(false)
+      this.courses.set(courses)
+      this.requirements.set(requirements)
+      this.prerequisites.set(prerequisites)
+      this.roots.set(roots)
     })
   }
   //

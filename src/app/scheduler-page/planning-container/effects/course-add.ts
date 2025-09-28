@@ -14,7 +14,7 @@ export class CourseAdd extends Effect {
   }
 
   public subject(): string {
-    return this.addedCourse.toUpperCase();
+    return this.addedCourse
   }
 
   override verbClass(): string {

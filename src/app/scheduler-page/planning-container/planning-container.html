@@ -4,61 +4,77 @@
   class="planningSection"
   cdkDropListGroup
 >
-  <div
-    cdkDropList
-  >
-    <h1>Available for {{semesterTitle(currentSemester())}}</h1>
-    <div>
-      @for (courseState of state().available(currentSemester()); track courseState.id) {
-      @let course = state().courseWith(courseState.id);
-      <div class="courseList">
-        <p
-          cdkDrag
-          (click)="addCourse(null,course.id)"
-          [cdkDragData]="course.id"
-          (cdkDragStarted)="setMinimumValidSemesterDrop(courseState.semesterAvailable!)"
-          (cdkDragEnded)="resetMinimumValidSemesterDrop()"
-        >
-          {{ course.id }} - {{ course.name }}
-        </p>
+  <div>
+    <div
+      cdkDropList
+      class="availableCourses"
+    >
+      <h1>Available for {{ semesterTitle(currentSemester()) }}</h1>
+      <div>
+        @for (courseState of state().available(currentSemester()); track courseState.id) {
+          @let course = state().courseWith(courseState.id);
+          <div class="courseList">
+            <p
+              cdkDrag
+              (click)="clickedCourse.set(course.id)"
+              [cdkDragData]="course.id"
+              (cdkDragStarted)="setMinimumValidSemesterDrop(courseState.semesterAvailable!)"
+              (cdkDragEnded)="resetMinimumValidSemesterDrop()"
+              [class]="clickedCourse() == course.id ? 'focusCourse' : ''"
+            >
+              {{ course.id }} - {{ course.name }}
+            </p>
+          </div>
+        } @empty {
+          <div>
+            <h5>There are no courses available for this semester</h5>
+          </div>
+        }
       </div>
-      } @empty {
-        <div>
-          <h5>There are no courses available for this semester</h5>
-        </div>
-      }
     </div>
+    <button matButton
+            mat-raised-button
+            class="addCourseButton"
+            (click)="addCourseAndResetAddCourseButton()"
+            [disabled]="clickedCourse() == null"
+    >
+      Add {{clickedCourse() == null ? 'course' : clickedCourse()}} to Semester #{{currentSemester() }}
+    </button>
   </div>
 
 
-  <div>
+  <div class="plannedContainer">
     <h1>Planned Courses</h1>
-    <div>
-      @for (semester of semesters(); track semester.semester){
-        <div (click)="setSemester(semester.semester)">
-          <h4 [class]="currentSemester() == semester.semester ? 'focusSemester' : ''">{{ semesterTitle(semester.semester) }}</h4>
-          <div
-            class="semester"
-            cdkDropList
-            (cdkDropListEntered)="setDragOverSemesterSignal(semester.semester)"
-            (cdkDropListDropped)="addCourse($event,null)"
-          >
-            @for (course of semester.courses; track course[COURSE_ID]) {
-              <p
-                (click)="openRemovePreview(course[COURSE_ID])"
-              > {{course[COURSE_ID]}}-{{course[COURSE_NAME]}}</p>
-            } @empty {
-              <p
-                [hidden]="isDraggingOverSemester(semester.semester)">
-                No courses planned
-              </p>
-            }
+    <div class="buttonPadding">
+      <div class="semesterContainer">
+        @for (semester of semesters(); track semester.semester) {
+          <div (click)="setSemester(semester.semester)">
+            <h4
+              [class]="currentSemester() == semester.semester ? 'focusSemester' : ''">{{ semesterTitle(semester.semester) }}</h4>
+            <div
+              class="semester"
+              cdkDropList
+              (cdkDropListEntered)="setDragOverSemesterSignal(semester.semester)"
+              (cdkDropListDropped)="addCourse($event,null)"
+            >
+              @for (course of semester.courses; track course[COURSE_ID]) {
+                <p
+                  (click)="openRemovePreview(course[COURSE_ID])"
+                > {{ course[COURSE_ID] }}-{{ course[COURSE_NAME] }}</p>
+              } @empty {
+                <p
+                  [hidden]="isDraggingOverSemester(semester.semester)">
+                  No courses planned
+                </p>
+              }
+            </div>
+
+            <p [hidden]="semester.semester >= minimumValidSemesterDrop()">You cannot add this course to this
+              semester</p>
           </div>
 
-          <p [hidden]="semester.semester >= minimumValidSemesterDrop()">You cannot add this course to this semester</p>
-        </div>
-
-      }
+        }
+      </div>
     </div>
     <button matButton mat-raised-button (click)="incrementSemester()">Add Semester</button>
   </div>
@@ -67,7 +83,11 @@
     <h1>Effects</h1>
     <mat-accordion>
       @for (effect of effects; track effect.id) {
-        <mat-expansion-panel >
+      <!--TODO add click event to expand/collapse listen for effect to be clicked when clicked undo that effect need single in class and function to handle logic        -->
+        <mat-expansion-panel
+          (click)="setUndoEffectSignal($index)"
+          [expanded]="$index == undoEffect()"
+        >
           <mat-expansion-panel-header>
             <mat-panel-title>
               <div class="effectTitle">
@@ -78,31 +98,38 @@
           </mat-expansion-panel-header>
 
           @if($first) {
-            @for (state of effect.currentCourseStates(); track state.id) {
-              @if(state.semesterAvailable == null){
-                <p>{{state.id}} not available</p>
-              } @else {
-                <p>{{state.id}} available starting at Semester #{{state.semesterAvailable}}</p>
-              }
+            <div class="effectContent">
+              @for (state of effect.currentCourseStates(); track state.id) {
+                @if (state.semesterAvailable == null) {
+                  <p>{{ state.id }} not available</p>
+                } @else {
+                  <p>{{ state.id }} available starting at Semester #{{ state.semesterAvailable }}</p>
+                }
 
-              @if(state.semesterPlanned == null){
-                <p>{{state.id}} not planned</p>
+                @if (state.semesterPlanned == null) {
+                  <p>{{ state.id }} not planned</p>
+                } @else {
+                  <p>{{ state.id }} planned for Semester #{{ state.semesterPlanned }}</p>
+                }
               }
-              @else{
-                <p>{{state.id}} planned for Semester #{{state.semesterPlanned}}</p>
-              }
-            }
+            </div>
           } @else {
-            @for(state of effect.currentCourseStates(); track state.id) {
-              <p>{{state.id}}</p>
-              <p>Available -> {{ state.semesterAvailable == null ? 'Not Available' : `@ semester#${state.semesterAvailable}` }}</p>
-              <p>Planned -> {{state.semesterPlanned == null ? 'Not Planned' : `@ semester#${state.semesterPlanned}`}}</p>
-            }
+            <div class="effectContent">
+
+              @for (state of effect.currentCourseStates(); track state.id) {
+                <p>{{ state.id }}</p>
+                <p>Available
+                  -> {{ state.semesterAvailable == null ? 'Not Available' : `@ semester#${state.semesterAvailable}` }}</p>
+                <p>Planned
+                  -> {{ state.semesterPlanned == null ? 'Not Planned' : `@ semester#${state.semesterPlanned}` }}</p>
+              }
+            </div>
           }
 
         </mat-expansion-panel>
       }
     </mat-accordion>
+      <button matButton mat-raised-button [disabled]="undoEffect() == null" (click)="revertState()">Revert State</button>
   </div>
 
 </div>
