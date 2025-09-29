@@ -11,7 +11,6 @@ import {PrerequisiteSummary} from './prerequisite-summary/prerequisite-summary';
     MatExpansionPanel,
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
-    forwardRef(() => RequirementSummary),
     PrerequisiteSummary
   ],
   templateUrl: './course-summary.html',
