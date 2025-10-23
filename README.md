@@ -45,5 +45,3 @@ into a format that is easier for the user to understand. It is nested drop down 
 
 ### Summary
 The summary feature overlays what the user has already planned on top of the degree mapping feature. 
-
-## How it was built
